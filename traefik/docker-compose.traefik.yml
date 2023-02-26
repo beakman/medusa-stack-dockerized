@@ -76,7 +76,7 @@ services:
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
 
     env_file:
-      - ./.env
+      - ../.env
     volumes:
       - ./data/letsencrypt:/letsencrypt
       - ./data/logs:/var/log/traefik
