@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+
+  meilisearch:
+    image: getmeili/meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_NO_SENTRY=true
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+    volumes:
+      - meilisearch_data:/data.ms
+    networks:
+      - traefik
+    labels:
+      - traefik.docker.network=traefik
+      - traefik.enable=true
+      - traefik.http.routers.search.entrypoints=websecure
+      - traefik.http.routers.search.rule=Host(`${MEILI_DOMAIN}`)
+      - traefik.http.routers.search.tls.certresolver=${MEILI_CERT_RESOLVER}
+      - traefik.http.services.search.loadbalancer.server.port=7700
+
+volumes:
+  meilisearch_data:
+
+networks:
+  traefik:
+    name: traefik

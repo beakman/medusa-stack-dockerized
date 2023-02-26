@@ -1,0 +1,76 @@
+version: "3.8"
+services:
+
+  backend:
+    build:
+      context: ./medusa-starter-default/
+      dockerfile: Dockerfile
+    image: medusa-starter-default:1.0.0
+    hostname: "`${MEDUSA_DOMAIN}`"
+    container_name: medusa-server-default
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusadb
+      REDIS_URL: redis://redis
+      NODE_ENV: development
+      PORT: 9000
+    env_file:
+      - ./.env
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/app/medusa
+      - node_modules:/app/medusa/node_modules
+    healthcheck:
+      test: ['CMD', 'curl', '0.0.0.0:9000']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.services.backend.loadbalancer.server.port=9000
+      - traefik.http.routers.backend.rule=Host(`${MEDUSA_DOMAIN}`)
+      - traefik.http.routers.backend.entrypoints=websecure
+      - traefik.http.routers.backend.tls.certresolver=${CERT_RESOLVER}
+    networks:
+      - traefik
+      - medusa_internal
+
+  postgres:
+    image: postgres:10.4
+    ports:
+      - "5432:5432"
+    networks:
+      - medusa_internal
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medusadb
+    volumes: 
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis
+    expose:
+      - 6379
+    networks:
+      - medusa_internal
+
+volumes:
+  db:
+    driver: local
+  node_modules:
+
+networks:
+  traefik:
+    name: traefik
+  medusa_internal:
+    internal: true
