@@ -3,7 +3,7 @@ services:
 
   backend:
     build:
-      context: ./medusa-starter-default/
+      context: medusa-starter-default/
       dockerfile: Dockerfile
     image: medusa-starter-default:1.0.0
     hostname: "`${MEDUSA_DOMAIN}`"
