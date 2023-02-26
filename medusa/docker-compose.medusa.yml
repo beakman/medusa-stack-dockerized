@@ -17,7 +17,7 @@ services:
       NODE_ENV: development
       PORT: 9000
     env_file:
-      - ./.env
+      - ../.env
     ports:
       - "9000:9000"
     volumes:

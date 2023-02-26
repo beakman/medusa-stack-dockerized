@@ -45,11 +45,11 @@ Update the environment variables accordingly.
 Start the stack.
 
 ```bash
-docker-compose -f traefik/docker-compose.traefik.yml \
-               -f medusa/docker-compose.medusa.yml \
-               -f medusa/docker-compose.minio.yml \
-               -f medusa/docker-compose.search.yml \               
-               up -d
+docker-compose ()
+{
+    docker compose $(find -name 'docker-compose*.yml' -type f -printf '%p\t%d\n'  2>/dev/null | sort -n -k2 | cut -f 1 | awk '{print "-f "$0}') $@
+}
+docker-compose up -d
 ```
 
 This command will start all the services in the stack in the background.
