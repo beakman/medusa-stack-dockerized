@@ -32,7 +32,7 @@ services:
       - traefik.http.services.backend.loadbalancer.server.port=9000
       - traefik.http.routers.backend.rule=Host(`${MEDUSA_DOMAIN}`)
       - traefik.http.routers.backend.entrypoints=websecure
-      - traefik.http.routers.backend.tls.certresolver=${CERT_RESOLVER}
+      - traefik.http.routers.backend.tls.certresolver=${MEDUSA_CERT_RESOLVER}
     networks:
       - traefik
       - medusa_internal
