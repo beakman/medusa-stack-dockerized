@@ -71,7 +71,7 @@ services:
       - traefik.http.routers.traefik.tls=true
       - traefik.http.routers.traefik.tls.certresolver=${TRAEFIK_CERT_RESOLVER}
       - traefik.http.middlewares.to-https.redirectscheme.scheme=https
-      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_PASSWORD_HASH}
     volumes:
       - ./data/letsencrypt:/letsencrypt
       - ./data/logs:/var/log/traefik
