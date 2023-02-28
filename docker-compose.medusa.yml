@@ -1,9 +1,9 @@
 version: "3.8"
-services:
 
+services:
   backend:
     build:
-      context: ./medusa-starter-default/
+      context: medusa-starter-default/
       dockerfile: Dockerfile
     image: medusa-starter-default:1.0.0
     hostname: "`${MEDUSA_DOMAIN}`"
@@ -19,7 +19,7 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - .:/app/medusa
+      - medusa_data:/app/medusa
       - node_modules:/app/medusa/node_modules
     healthcheck:
       test: ['CMD', 'curl', '0.0.0.0:9000']
@@ -36,7 +36,6 @@ services:
     networks:
       - traefik
       - medusa_internal
-
   postgres:
     image: postgres:10.4
     ports:
@@ -54,7 +53,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   redis:
     image: redis
     expose:
@@ -63,6 +61,7 @@ services:
       - medusa_internal
 
 volumes:
+  medusa_data:
   db:
     driver: local
   node_modules:
