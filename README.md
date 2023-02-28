@@ -14,18 +14,19 @@ The stack is deployed using Docker Compose, which makes it easy to deploy and ma
 ## Stack Components
 The Medusa server stack consists of the following components:
 
+* Traefik + Dashboard: A popular reverse proxy and load balancer.
 * PostgreSQL: A powerful and open-source relational database system.
 * Minio: An open-source object storage server compatible with Amazon S3 APIs.
 * MeiliSearch: A fast and easy-to-use search engine.
 * Stripe Payment Gateway: A payment gateway that allows you to accept payments securely and easily.
 
-## Deployment
+## Setup
 To deploy the Medusa server stack on your VPS, follow these steps:
 
 Clone the repository to your VPS.
 
 ```bash
-git clone https://github.com/your-github-username/medusa-stack-dockerized.git
+git clone git@github.com:beakman/medusa-stack-dockerized.git
 ```
 
 Navigate to the medusa-stack-dockerized directory.
@@ -39,17 +40,25 @@ cp .env.example .env
 vim .env
 ```
 
-Update the environment variables accordingly.
+### Environment variables
 
+MEDUSA_DOMAIN=example.com
+MINIO_DOMAIN=minio.example.com
+MINIO_CONSOLE_DOMAIN=minio-console.example.com
+MEILI_DOMAIN=search.example.com
+TRAEFIK_DOMAIN=traefik.example.com
+EMAIL=user@example.com
+CERT_RESOLVER=letsencrypt
+CLOUDFLARE_EMAIL=
+CLOUDFLARE_API_KEY=
+CLOUDFLARE_DNS_API_TOKEN=
+
+Refer to https://dash.cloudflare.com/profile/api-tokens to get your CloudFlare tokens.
 
 Start the stack.
 
 ```bash
-docker-compose ()
-{
-    docker compose $(find -name 'docker-compose*.yml' -type f -printf '%p\t%d\n'  2>/dev/null | sort -n -k2 | cut -f 1 | awk '{print "-f "$0}') $@
-}
-docker-compose up -d
+sh start.sh
 ```
 
 This command will start all the services in the stack in the background.
