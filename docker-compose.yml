@@ -1,5 +1,3 @@
 version: '3.8'
-env_file:
-      - ./.env
 networks:
   traefik:
