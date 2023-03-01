@@ -42,16 +42,17 @@ vim .env
 
 ### Environment variables
 
-MEDUSA_DOMAIN=example.com
-MINIO_DOMAIN=minio.example.com
-MINIO_CONSOLE_DOMAIN=minio-console.example.com
-MEILI_DOMAIN=search.example.com
-TRAEFIK_DOMAIN=traefik.example.com
-EMAIL=user@example.com
-CERT_RESOLVER=letsencrypt
-CLOUDFLARE_EMAIL=
-CLOUDFLARE_API_KEY=
-CLOUDFLARE_DNS_API_TOKEN=
+* MEDUSA_DOMAIN=example.com
+* MINIO_DOMAIN=minio.example.com
+* MINIO_CONSOLE_DOMAIN=minio-console.example.com
+* MEILI_DOMAIN=search.example.com
+* TRAEFIK_DOMAIN=traefik.example.com
+* EMAIL=user@example.com
+* CERT_RESOLVER=letsencrypt
+* CLOUDFLARE_EMAIL=
+* CLOUDFLARE_API_KEY=
+* CLOUDFLARE_DNS_API_TOKEN=
+* TRAEFIK_PASSWORD_HASH= user and password, hashed using MD5, SHA1, or BCrypt
 
 Refer to https://dash.cloudflare.com/profile/api-tokens to get your CloudFlare tokens.
 
