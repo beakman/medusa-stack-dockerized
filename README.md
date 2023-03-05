@@ -9,7 +9,7 @@ The stack is deployed using Docker Compose, which makes it easy to deploy and ma
 ## Required
 
 - [docker](http://docs.docker.com/compose/install/#install-docker) and
-- [docker-compose)](http://docs.docker.com/compose/install/#install-compose)
+- [docker-compose](http://docs.docker.com/compose/install/#install-compose)
 
 ## Stack Components
 The Medusa server stack consists of the following components:
