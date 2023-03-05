@@ -2,7 +2,7 @@
 
 A dockerized version of Medusa Server Stack with Traefik, PostgreSQL, Minio, MeiliSearch, and Stripe Payment Gateway.
 
-This repository contains the necessary files to deploy a complete dockerized Medusa server stack with PostgreSQL, Minio, MeiliSearch, and Stripe Payment Gateway. This stack have been tested in a [6$/Mo Digital Ocean's droplet] (https://m.do.co/c/78ed3831d01e) with 1GB RAM and 25GB storage space.
+This repository contains the necessary files to deploy a complete dockerized Medusa server stack with PostgreSQL, Minio, MeiliSearch, and Stripe Payment Gateway. This stack have been tested in a [6$/Mo Digital Ocean's droplet (referal)](https://m.do.co/c/78ed3831d01e) with 1GB RAM and 25GB storage space.
 
 The stack is deployed using Docker Compose, which makes it easy to deploy and manage. The stack also includes Traefik as a reverse proxy to handle HTTPS and load balancing.
 
@@ -63,6 +63,7 @@ sh start.sh
 ```
 
 This command will start all the services in the stack in the background.
+
 
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=78ed3831d01e&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 
