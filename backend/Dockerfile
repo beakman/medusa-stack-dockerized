@@ -3,7 +3,7 @@ FROM node:17.1.0
 WORKDIR /app/medusa
 
 COPY medusa-starter-default/package.json .
-COPY deploy.sh .
+COPY develop.sh .
 COPY medusa-config.js .
 COPY yarn.* .
 
@@ -29,4 +29,4 @@ RUN npm install medusa-plugin-meilisearch
 
 COPY . .
 
-ENTRYPOINT ["./deploy.sh"]
+ENTRYPOINT ["./develop.sh"]
