@@ -17,6 +17,8 @@ RUN npm install -g @medusajs/medusa-cli@latest
 
 RUN npm install
 
+RUN npm install @medusajs/admin
+
 RUN npm install medusa-payment-stripe
 
 RUN npm install medusa-file-minio
