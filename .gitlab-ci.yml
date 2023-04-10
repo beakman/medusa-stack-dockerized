@@ -15,7 +15,7 @@ build:
     stage: build
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker compose build
+        - docker compose build --pull
         - docker compose push
     only:
         refs:
@@ -27,7 +27,7 @@ release:
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - docker compose pull
-        - docker tag $CI_REGISTRY_IMAGE/backend:$TAG $CI_REGISTRY_IMAGE/backend:latest
+        - docker tag $CI_REGISTRY_IMAGE:$TAG $CI_REGISTRY_IMAGE:latest
         - TAG=latest docker compose push
     only:
         refs:
