@@ -1,7 +1,6 @@
-image: docker:stable
-
+image: docker:23.0.1
 services:
-  - docker:dind
+    - docker:23.0.1-dind
 
 stages:
     - build
@@ -14,7 +13,6 @@ variables:
 
 build:
     stage: build
-    image: docker:stable
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - docker compose build
@@ -26,7 +24,6 @@ build:
 
 release:
     stage: release
-    image: docker:stable
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - docker compose pull
@@ -38,7 +35,7 @@ release:
 
 deploy:staging:
     stage: deploy
-    image: alpine
+    image: docker:stable
     script:
         - apk update && apk add openssh rsync
         - eval $(ssh-agent -s)
@@ -69,7 +66,7 @@ deploy:staging:
 
 deploy:production:
     stage: deploy
-    image: alpine
+    image: docker:stable
     variables:
         TAG: 'latest'
     script:
