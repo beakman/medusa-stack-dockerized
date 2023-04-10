@@ -28,4 +28,7 @@ COPY medusa-starter-default/ ./
 # Add the custom config, including additional plugins
 COPY medusa-config.js .
 
-ENTRYPOINT ["sh", "./develop.sh"]
+# Build admin
+RUN yarn build:admin
+
+ENTRYPOINT ["sh", "./deploy.sh"]

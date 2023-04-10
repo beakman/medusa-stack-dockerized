@@ -1,0 +1,103 @@
+image: docker:stable
+services:
+  - docker:dind
+
+stages:
+    - build
+    - test
+    - release
+    - deploy
+
+variables:
+    TAG: $CI_COMMIT_REF_SLUG
+
+services:
+    - docker:dind
+
+build:
+    stage: build
+    image: cheaterman/docker-compose
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - docker compose build --pull
+        - docker compose push
+    only:
+        refs:
+            - staging
+            - master
+
+release:
+    stage: release
+    image: cheaterman/docker-compose
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - docker-compose pull
+        - docker tag $CI_REGISTRY_IMAGE/backend:$TAG $CI_REGISTRY_IMAGE/backend:latest
+        - TAG=latest docker-compose push
+    only:
+        refs:
+            - master
+
+deploy:staging:
+    stage: deploy
+    image: alpine
+    script:
+        - apk update && apk add openssh rsync
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | ssh-add -
+        - mkdir ~/.ssh
+        - chmod 700 ~/.ssh
+        - |
+            ssh "${TARGET_USER}@${TARGET_HOST}" \
+            -oStrictHostKeyChecking=accept-new \
+            "
+            cd \"${TARGET_DIRECTORY}\" &&
+            docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+            TAG=$TAG docker compose pull &&
+            rm -rf ~/.docker &&
+            TAG=$TAG docker compose \\
+                up \\
+                --detach \\
+            &&
+            docker image prune -f
+            "
+    environment:
+        name: staging
+        url: $STAGING_URL
+    only:
+        refs:
+            - staging
+            - master
+
+deploy:production:
+    stage: deploy
+    image: alpine
+    variables:
+        TAG: 'latest'
+    script:
+        - apk update && apk add openssh rsync
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | ssh-add -
+        - mkdir ~/.ssh
+        - chmod 700 ~/.ssh
+        - |
+            ssh "${TARGET_USER}@${TARGET_HOST}" \
+            -oStrictHostKeyChecking=accept-new \
+            "
+            cd \"${TARGET_DIRECTORY}\" &&
+            docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+            TAG=$TAG docker-compose pull &&
+            rm -rf ~/.docker &&
+            TAG=$TAG docker compose \\
+                up \\
+                --detach \\
+            &&
+            docker image prune -f
+            "
+    environment:
+        name: production
+        url: $PRODUCTION_URL
+    when: manual
+    only:
+        refs:
+            - master
