@@ -9,8 +9,12 @@ services:
     hostname: "`${MEDUSA_DOMAIN}`"
     container_name: medusa-server-default
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-store
       REDIS_URL: redis://redis
@@ -39,9 +43,10 @@ services:
       - traefik
       - medusa_internal
   postgres:
-    image: postgres:10.4
-    ports:
-      - "5432:5432"
+    image: postgres:10.4-alpine
+    restart: always
+    expose:
+      - 5432
     networks:
       - medusa_internal
     environment:
@@ -56,7 +61,9 @@ services:
       timeout: 5s
       retries: 5
   redis:
-    image: redis
+    image: redis:7.0.7-alpine
+    restart: always
+    container_name: redis
     expose:
       - 6379
     networks:

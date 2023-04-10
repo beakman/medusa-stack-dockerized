@@ -1,4 +1,4 @@
-FROM node:17.1.0
+FROM node:17.1.0-alpine
 
 WORKDIR /app/medusa
 
@@ -7,26 +7,23 @@ COPY develop.sh .
 COPY medusa-config.js .
 COPY yarn.* .
 
-RUN apt-get update
+RUN apk update
 
-RUN apt-get install -y python
+RUN yarn --network-timeout 1000000
 
-RUN npm install -g npm@8.1.2
+RUN yarn global add @medusajs/medusa-cli@latest
 
-RUN npm install -g @medusajs/medusa-cli@latest
+RUN yarn add @medusajs/admin
 
-RUN npm install
+RUN yarn add medusa-payment-stripe
 
-RUN npm install @medusajs/admin
+RUN yarn add medusa-file-minio
 
-RUN npm install medusa-payment-stripe
+RUN yarn add medusa-plugin-sendgrid
 
-RUN npm install medusa-file-minio
+RUN yarn add medusa-plugin-meilisearch
 
-RUN npm install medusa-plugin-sendgrid
-
-RUN npm install medusa-plugin-meilisearch
-
+# Add the remaining files
 COPY . .
 
-ENTRYPOINT ["./develop.sh"]
+ENTRYPOINT ["sh", "./develop.sh"]
