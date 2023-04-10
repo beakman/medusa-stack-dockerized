@@ -13,7 +13,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      minio:
+      storage:
         condition: service_started
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-store
