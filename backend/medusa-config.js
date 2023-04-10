@@ -40,11 +40,13 @@ const plugins = [
   `medusa-fulfillment-manual`,
   `medusa-payment-manual`,
   // To enable the admin plugin, uncomment the following lines and run `yarn add @medusajs/admin`
+  // Please note is not recommended to build the admin in production, cause a minimum of 2GB RAM
+  // is required.
   {
     resolve: "@medusajs/admin",
     /** @type {import('@medusajs/admin').PluginOptions} */
     options: {
-        autoRebuild: true,
+        autoRebuild: false,
     },
   },
   {
