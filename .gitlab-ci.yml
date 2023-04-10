@@ -1,4 +1,5 @@
 image: docker:stable
+
 services:
   - docker:dind
 
@@ -11,12 +12,9 @@ stages:
 variables:
     TAG: $CI_COMMIT_REF_SLUG
 
-services:
-    - docker:dind
-
 build:
     stage: build
-    image: cheaterman/docker-compose
+    image: docker:stable
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - docker compose build
@@ -28,12 +26,12 @@ build:
 
 release:
     stage: release
-    image: cheaterman/docker-compose
+    image: docker:stable
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker-compose pull
+        - docker compose pull
         - docker tag $CI_REGISTRY_IMAGE/backend:$TAG $CI_REGISTRY_IMAGE/backend:latest
-        - TAG=latest docker-compose push
+        - TAG=latest docker compose push
     only:
         refs:
             - main
@@ -86,7 +84,7 @@ deploy:production:
             "
             cd \"${TARGET_DIRECTORY}\" &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-            TAG=$TAG docker-compose pull &&
+            TAG=$TAG docker compose pull &&
             rm -rf ~/.docker &&
             TAG=$TAG docker compose \\
                 up \\
