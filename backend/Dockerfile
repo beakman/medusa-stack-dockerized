@@ -23,7 +23,7 @@ RUN yarn add medusa-plugin-sendgrid
 RUN yarn add medusa-plugin-meilisearch
 
 # Add the remaining files
-COPY medusa-starter-default/* .
+COPY medusa-starter-default/ ./
 
 # Add the custom config, including additional plugins
 COPY medusa-config.js .
