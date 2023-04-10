@@ -19,7 +19,7 @@ build:
     image: cheaterman/docker-compose
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker compose build --pull
+        - docker compose build
         - docker compose push
     only:
         refs:
