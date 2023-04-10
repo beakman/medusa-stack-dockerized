@@ -12,10 +12,12 @@ services:
       - postgres
       - redis
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusadb
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-store
       REDIS_URL: redis://redis
       NODE_ENV: development
       PORT: 9000
+    env_file:
+      - .env
     ports:
       - "9000:9000"
     volumes:
@@ -45,7 +47,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medusadb
+      POSTGRES_DB: medusa-store
     volumes: 
       - db:/var/lib/postgresql/data
     healthcheck:
