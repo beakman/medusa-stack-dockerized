@@ -9,29 +9,32 @@ stages:
     - deploy
 
 variables:
-    TAG: $CI_COMMIT_REF_SLUG
+    # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
     stage: build
     script:
-        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker compose build --pull
-        - docker compose push
+        - docker build --pull -t $CONTAINER_TEST_IMAGE .
+        - docker push $CONTAINER_TEST_IMAGE
     only:
-        refs:
-            - staging
-            - main
+        - staging
+        - main
 
 release:
     stage: release
     script:
-        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        - docker compose pull
-        - docker tag $CI_REGISTRY_IMAGE:$TAG $CI_REGISTRY_IMAGE:latest
-        - TAG=latest docker compose push
+        - docker compose pull $CONTAINER_TEST_IMAGE
+        - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+        - docker push $CONTAINER_RELEASE_IMAGE
     only:
-        refs:
-            - main
+        - main
 
 deploy:staging:
     stage: deploy
@@ -48,9 +51,9 @@ deploy:staging:
             "
             cd \"${TARGET_DIRECTORY}\" &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-            TAG=$TAG docker compose pull &&
+            docker compose pull $CONTAINER_RELEASE_IMAGE &&
             rm -rf ~/.docker &&
-            TAG=$TAG docker compose \\
+            docker compose \\
                 up \\
                 --detach \\
             &&
@@ -60,9 +63,8 @@ deploy:staging:
         name: staging
         url: $STAGING_URL
     only:
-        refs:
-            - staging
-            - main
+        - staging
+        - main
 
 deploy:production:
     stage: deploy
@@ -81,9 +83,9 @@ deploy:production:
             "
             cd \"${TARGET_DIRECTORY}\" &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-            TAG=$TAG docker compose pull &&
+            docker compose pull $CONTAINER_RELEASE_IMAGE &&
             rm -rf ~/.docker &&
-            TAG=$TAG docker compose \\
+            docker compose \\
                 up \\
                 --detach \\
             &&
@@ -94,5 +96,4 @@ deploy:production:
         url: $PRODUCTION_URL
     when: manual
     only:
-        refs:
-            - main
+        - main
