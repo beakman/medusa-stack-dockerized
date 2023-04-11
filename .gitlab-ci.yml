@@ -1,3 +1,7 @@
+image: docker:20.10.16
+services:
+    - docker:20.10.16-dind
+
 stages:
     - build
     - test
@@ -16,9 +20,6 @@ before_script:
 
 build:
     stage: build
-    image: docker:23.0.1
-    services:
-        - docker:23.0.1-dind
     script:
         - docker build --pull -t $CONTAINER_TEST_IMAGE .
         - docker push $CONTAINER_TEST_IMAGE
