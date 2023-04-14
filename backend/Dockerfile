@@ -3,6 +3,7 @@ FROM node:17.1.0-alpine
 WORKDIR /app/medusa
 
 COPY medusa-starter-default/package.json .
+COPY medusa-starter-default/yarn.lock .
 COPY develop.sh .
 COPY deploy.sh .
 
