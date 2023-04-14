@@ -53,7 +53,8 @@ deploy:staging:
             "
             cd \"${TARGET_DIRECTORY}\" &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-            docker compose pull $CONTAINER_RELEASE_IMAGE &&
+            export CONTAINER_RELEASE_IMAGE=$CONTAINER_RELEASE_IMAGE &&
+            docker pull $CONTAINER_RELEASE_IMAGE &&
             rm -rf ~/.docker &&
             docker compose \\
                 up \\
@@ -84,6 +85,7 @@ deploy:production:
             -oStrictHostKeyChecking=accept-new \
             "
             cd \"${TARGET_DIRECTORY}\" &&
+            export CONTAINER_RELEASE_IMAGE=$CONTAINER_RELEASE_IMAGE &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
             docker compose \\
                 up \\
