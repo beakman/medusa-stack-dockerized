@@ -4,6 +4,7 @@ WORKDIR /app/medusa
 
 COPY medusa-starter-default/package.json .
 COPY develop.sh .
+COPY deploy.sh .
 COPY yarn.* .
 
 RUN apk update

@@ -1,3 +1,206 @@
-version: '3.8'
+version: "3.8"
+
+services:
+  backend:
+    image: "`${CONTAINER_RELEASE_IMAGE}`"
+    hostname: "`${MEDUSA_DOMAIN}`"
+    container_name: medusa-server-default
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      storage:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-store
+      REDIS_URL: redis://redis
+      NODE_ENV: development
+      PORT: 9000
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+    volumes:
+      - medusa_data:/app/medusa
+      - node_modules:/app/medusa/node_modules
+    healthcheck:
+      test: ['CMD', 'curl', '0.0.0.0:9000']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.services.backend.loadbalancer.server.port=9000
+      - traefik.http.routers.backend.rule=Host(`${MEDUSA_DOMAIN}`)
+      - traefik.http.routers.backend.entrypoints=websecure
+      - traefik.http.routers.backend.tls.certresolver=${MEDUSA_CERT_RESOLVER}
+    networks:
+      - traefik
+      - medusa_internal
+  postgres:
+    image: postgres:10.4-alpine
+    restart: always
+    expose:
+      - 5432
+    networks:
+      - medusa_internal
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medusa-store
+    volumes: 
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7.0.7-alpine
+    restart: always
+    container_name: redis
+    expose:
+      - 6379
+    networks:
+      - medusa_internal
+  traefik:
+    image: traefik:2.9.8
+    container_name: traefik
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - traefik
+    environment:
+      - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
+      - CF_API_KEY=${CLOUDFLARE_API_KEY}
+      - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
+    # traefik
+    command:
+      # provider
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+
+      # log
+      - --log.level=INFO
+
+      # access log
+      - --accesslog=true
+      - --accesslog.filepath=/var/log/traefik/access.json
+      - --accesslog.format=json
+
+      # dashboard
+      - --api=true
+      - --api.dashboard=true
+
+      # entry points
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+
+      # for https
+      - --entrypoints.websecure.address=:443
+
+      # certificate
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.keyType=EC384
+
+      # # LetsEncrypt Staging Server - uncomment when testing
+      # - --certificatesResolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      # # - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      # # - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+
+      # # When using CloudFlare as proxy DNS challenge is required
+      # - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      # - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      # - --certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=0
+      # - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      # - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      # - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.to-https.rule=HostRegexp(`{host:.+}`)
+      - traefik.http.routers.to-https.entrypoints=web
+      - traefik.http.routers.to-https.middlewares=to-https
+      - traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DOMAIN}`)
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.middlewares=auth
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.routers.traefik.tls.certresolver=${TRAEFIK_CERT_RESOLVER}
+      - traefik.http.middlewares.to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_PASSWORD_HASH}
+    volumes:
+      - ./data/letsencrypt:/letsencrypt
+      - ./data/logs:/var/log/traefik
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  storage:
+    image: minio/minio:latest
+    container_name: service-storage
+    restart: unless-stopped
+    command: server /data --console-address :9001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    volumes:
+      - ./data/storage:/data
+    networks:
+      - traefik
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASS}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      # api
+      - traefik.http.services.storage.loadbalancer.server.port=9000
+      - traefik.http.routers.storage.entrypoints=websecure
+      - traefik.http.routers.storage.service=storage
+      - traefik.http.routers.storage.rule=Host(`${MINIO_DOMAIN}`)
+      - traefik.http.routers.storage.tls.certresolver=${MINIO_CERT_RESOLVER}
+      # console
+      - traefik.http.services.minio-console.loadbalancer.server.port=9001
+      - traefik.http.routers.minio-console.entrypoints=websecure
+      - traefik.http.routers.minio-console.service=minio-console
+      - traefik.http.routers.minio-console.rule=Host(`${MINIO_CONSOLE_DOMAIN}`)      
+      - traefik.http.routers.minio-console.tls.certresolver=${MINIO_CERT_RESOLVER}
+  meilisearch:
+    image: getmeili/meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_NO_SENTRY=true
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+    volumes:
+      - meilisearch_data:/data.ms
+    networks:
+      - traefik
+    labels:
+      - traefik.docker.network=traefik
+      - traefik.enable=true
+      - traefik.http.routers.search.entrypoints=websecure
+      - traefik.http.routers.search.rule=Host(`${MEILI_DOMAIN}`)
+      - traefik.http.routers.search.tls.certresolver=${MEILI_CERT_RESOLVER}
+      - traefik.http.services.search.loadbalancer.server.port=7700
+
+volumes:
+  medusa_data:
+  db:
+    driver: local
+  node_modules:
+  meilisearch_data:
+
 networks:
   traefik:
+    name: traefik
+  medusa_internal:
+    internal: true
