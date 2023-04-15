@@ -2,10 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    build:
-      context: backend/
-      dockerfile: Dockerfile
-    image: medusa-starter-default:1.0.0
+    image: "`${CONTAINER_RELEASE_IMAGE}`"
     hostname: "`${MEDUSA_DOMAIN}`"
     container_name: medusa-server-default
     depends_on:
