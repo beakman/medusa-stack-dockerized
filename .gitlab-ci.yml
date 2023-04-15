@@ -38,37 +38,6 @@ release:
     only:
         - main
 
-deploy:staging:
-    stage: deploy
-    image: docker:stable
-    script:
-        - apk update && apk add openssh rsync
-        - eval $(ssh-agent -s)
-        - echo "$SSH_PRIVATE_KEY" | ssh-add -
-        - mkdir ~/.ssh
-        - chmod 700 ~/.ssh
-        - |
-            ssh "${TARGET_USER}@${TARGET_HOST}" \
-            -oStrictHostKeyChecking=accept-new \
-            "
-            cd \"${TARGET_DIRECTORY}\" &&
-            docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-            export CONTAINER_RELEASE_IMAGE=${CONTAINER_RELEASE_IMAGE} &&
-            docker pull $CONTAINER_RELEASE_IMAGE &&
-            rm -rf ~/.docker &&
-            docker compose \\
-                up \\
-                --detach \\
-            &&
-            docker image prune -f
-            "
-    environment:
-        name: staging
-        url: $STAGING_URL
-    only:
-        - staging
-        - main
-
 deploy:production:
     stage: deploy
     image: docker:stable
@@ -85,8 +54,8 @@ deploy:production:
             -oStrictHostKeyChecking=accept-new \
             "
             cd \"${TARGET_DIRECTORY}\" &&
+            git pull &&
             export CONTAINER_RELEASE_IMAGE=${CONTAINER_RELEASE_IMAGE} &&
-            echo $CONTAINER_RELEASE_IMAGE &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
             docker pull $CONTAINER_RELEASE_IMAGE &&
             rm -rf ~/.docker &&
