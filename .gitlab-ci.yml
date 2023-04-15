@@ -55,6 +55,7 @@ deploy:production:
             "
             cd \"${TARGET_DIRECTORY}\" &&
             git pull &&
+            git submodule update --init --recursive &&
             export CONTAINER_RELEASE_IMAGE=${CONTAINER_RELEASE_IMAGE} &&
             docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
             docker pull $CONTAINER_RELEASE_IMAGE &&
