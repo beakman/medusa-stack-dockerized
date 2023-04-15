@@ -69,6 +69,5 @@ deploy:production:
     environment:
         name: production
         url: $PRODUCTION_URL
-    when: manual
     only:
         - main
