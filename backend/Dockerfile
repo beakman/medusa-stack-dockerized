@@ -26,10 +26,10 @@ RUN yarn add medusa-plugin-meilisearch
 # Add the remaining files
 COPY medusa-starter-default/ ./
 
-# Add the custom config, including additional plugins
-COPY medusa-config.js .
-
 # Build admin
 RUN yarn build:admin
+
+# Add the custom config, including additional plugins
+COPY medusa-config.js .
 
 ENTRYPOINT ["sh", "./deploy.sh"]
