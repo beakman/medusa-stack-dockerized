@@ -1,4 +1,4 @@
-FROM node:17.1.0-alpine
+FROM node:18.16.0-alpine
 
 WORKDIR /app/medusa
 
@@ -26,10 +26,10 @@ RUN yarn add medusa-plugin-meilisearch
 # Add the remaining files
 COPY medusa-starter-default/ ./
 
-# Build admin
-RUN yarn build:admin
-
 # Add the custom config, including additional plugins
 COPY medusa-config.js .
+
+# Build admin
+RUN yarn build:admin
 
 ENTRYPOINT ["sh", "./deploy.sh"]
