@@ -12,6 +12,8 @@ services:
         condition: service_started
       storage:
         condition: service_started
+      meilisearch:
+        condition: service_started
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-store
       REDIS_URL: redis://redis
