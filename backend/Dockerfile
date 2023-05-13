@@ -32,4 +32,4 @@ COPY medusa-config.js .
 # Build admin
 RUN yarn build:admin
 
-ENTRYPOINT ["sh", "./deploy.sh"]
+ENTRYPOINT ["sh", "./develop.sh"]
