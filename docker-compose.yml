@@ -27,7 +27,7 @@ services:
       - medusa_data:/app/medusa
       - node_modules:/app/medusa/node_modules
     healthcheck:
-      test: ['CMD', 'curl', '0.0.0.0:9000']
+      test: ['CMD', 'curl', '--fail', 'http://0.0.0.0:9000/app']
       interval: 10s
       timeout: 10s
       retries: 5

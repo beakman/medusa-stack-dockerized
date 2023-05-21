@@ -16,7 +16,7 @@ The Medusa server stack consists of the following components:
 * MeiliSearch: A fast and easy-to-use search engine.
 * Stripe Payment Gateway: A payment gateway that allows you to accept payments securely and easily.
 
-## Setup
+## Deploy
 To deploy the Medusa server stack on your VPS, follow these steps:
 
 Clone the repository to your VPS.
@@ -71,6 +71,13 @@ docker compose logs -f
 Or service specific:
 ```bash
 docker compose logs -f meilisearch
+```
+
+Cleaning previous installations:
+```bash
+docker compose down
+docker system prune -a -f --volumes
+docker volume rm $(docker volume ls -q)
 ```
 
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=78ed3831d01e&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
