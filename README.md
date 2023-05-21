@@ -73,6 +73,11 @@ Or service specific:
 docker compose logs -f meilisearch
 ```
 
+Populate install with sample data:
+```bash
+docker compose exec -it backend medusa seed -f data/seed.json
+```
+
 Cleaning previous installations:
 ```bash
 docker compose down
