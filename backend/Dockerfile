@@ -13,12 +13,12 @@ RUN yarn --network-timeout 1000000
 
 RUN yarn global add @medusajs/medusa-cli@latest
 
-RUN yarn add @medusajs/admin
-
 # Add the remaining files
 COPY medusa-starter-default/ ./
 
 # Install plugins
+RUN yarn add @medusajs/admin --network-timeout 1000000
+
 RUN yarn add medusa-payment-stripe --network-timeout 1000000
 
 RUN yarn add medusa-file-minio --network-timeout 1000000
