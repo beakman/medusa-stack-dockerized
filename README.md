@@ -117,6 +117,13 @@ docker system prune -a -f --volumes
 docker volume rm $(docker volume ls -q)
 ```
 
+# Configuring Minio storage
+
+1. Access https://minio-console.example.com/
+2. Create a new bucket and call it as you did in `MINIO_BUCKET` variable.
+3. Set its privacy settings to public.
+4. Create a new "Access key" pair and copy them to `MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` variables.
+
 # Update version
 
 ```bash
