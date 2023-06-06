@@ -18,6 +18,7 @@ The Medusa server stack consists of the following components:
 - Stripe Payment Gateway: A payment gateway that allows you to accept payments securely and easily.
 
 ## Build image
+
 Medusa admin requires > 1GB RAM to build. So yo have different options here:
 
 1. Build the image with the admin locally and push it to a remote registry.
@@ -114,6 +115,12 @@ Cleaning previous installations:
 docker compose down
 docker system prune -a -f --volumes
 docker volume rm $(docker volume ls -q)
+```
+
+# Update version
+
+```bash
+git submodule update --remote
 ```
 
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=78ed3831d01e&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
