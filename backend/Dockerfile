@@ -16,6 +16,9 @@ RUN yarn global add @medusajs/medusa-cli@latest
 # Add the remaining files
 COPY medusa-starter-default/ ./
 
+# Add the custom config, including additional plugins
+COPY medusa-config.js .
+
 # Install plugins
 RUN yarn add @medusajs/admin --network-timeout 1000000
 
@@ -26,9 +29,6 @@ RUN yarn add medusa-file-minio --network-timeout 1000000
 RUN yarn add medusa-plugin-sendgrid --network-timeout 1000000
 
 RUN yarn add medusa-plugin-meilisearch --network-timeout 1000000
-
-# Add the custom config, including additional plugins
-COPY medusa-config.js .
 
 # Build admin
 RUN yarn build:admin
