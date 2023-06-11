@@ -13,6 +13,8 @@ RUN yarn --network-timeout 1000000
 
 RUN yarn global add @medusajs/medusa-cli@latest
 
+RUN yarn add dotenv
+
 RUN yarn add @medusajs/admin
 
 RUN yarn add medusa-file-minio
