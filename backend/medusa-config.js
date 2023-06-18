@@ -29,7 +29,8 @@ const ADMIN_CORS =
 const STORE_CORS = process.env.STORE_CORS || "http://localhost:8000";
 
 const DATABASE_TYPE = process.env.DATABASE_TYPE || "sqlite";
-const DATABASE_URL = process.env.DATABASE_URL || "postgres://localhost/medusa-store";
+const DATABASE_URL =
+  process.env.DATABASE_URL || "postgres://localhost/medusa-store";
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
 // Stripe keys
@@ -46,7 +47,7 @@ const plugins = [
     resolve: "@medusajs/admin",
     /** @type {import('@medusajs/admin').PluginOptions} */
     options: {
-        autoRebuild: false,
+      autoRebuild: false,
     },
   },
   {
@@ -54,17 +55,18 @@ const plugins = [
     options: {
       api_key: STRIPE_API_KEY,
       webhook_secret: STRIPE_WEBHOOK_SECRET,
-      automatic_payment_methods: true,    
+      automatic_payment_methods: true,
     },
   },
   {
     resolve: `medusa-file-minio`,
     options: {
-        endpoint: process.env.MINIO_ENDPOINT,
-        bucket: process.env.MINIO_BUCKET,
-        access_key_id: process.env.MINIO_ACCESS_KEY,
-        secret_access_key: process.env.MINIO_SECRET_KEY,
-      },
+      endpoint: process.env.MINIO_ENDPOINT,
+      bucket: process.env.MINIO_BUCKET,
+      private_bucket: process.env.MINIO_PRIVATE_BUCKET,
+      access_key_id: process.env.MINIO_ACCESS_KEY,
+      secret_access_key: process.env.MINIO_SECRET_KEY,
+    },
   },
   {
     resolve: `medusa-plugin-sendgrid`,
@@ -73,12 +75,13 @@ const plugins = [
       from: process.env.SENDGRID_FROM,
       order_placed_template: process.env.SENDGRID_ORDER_PLACED_ID,
       localization: {
-        "es-ES": { // locale key
+        "es-ES": {
+          // locale key
           order_placed_template: process.env.SENDGRID_ORDER_PLACED_ID_LOCALIZED,
-        }
-      }
-    }
-  },  
+        },
+      },
+    },
+  },
   {
     resolve: `medusa-plugin-meilisearch`,
     options: {
@@ -90,22 +93,18 @@ const plugins = [
         // index name
         products: {
           indexSettings: {
-            searchableAttributes: [
-              "title", 
+            searchableAttributes: ["title", "description", "variant_sku"],
+            displayedAttributes: [
+              "title",
               "description",
               "variant_sku",
-            ],
-            displayedAttributes: [
-              "title", 
-              "description", 
-              "variant_sku", 
-              "thumbnail", 
+              "thumbnail",
               "handle",
             ],
           },
           primaryKey: "id",
-          transform: (product) => ({ 
-            id: product.id, 
+          transform: (product) => ({
+            id: product.id,
             // other attributes...
           }),
         },
@@ -118,16 +117,16 @@ const modules = {
   eventBus: {
     resolve: "@medusajs/event-bus-redis",
     options: {
-      redisUrl: REDIS_URL
-    }
+      redisUrl: REDIS_URL,
+    },
   },
   cacheService: {
     resolve: "@medusajs/cache-redis",
     options: {
-      redisUrl: REDIS_URL
-    }
+      redisUrl: REDIS_URL,
+    },
   },
-}
+};
 
 /** @type {import('@medusajs/medusa').ConfigModule["projectConfig"]} */
 const projectConfig = {
@@ -138,18 +137,17 @@ const projectConfig = {
   store_cors: STORE_CORS,
   admin_cors: ADMIN_CORS,
   // Uncomment the following lines to enable REDIS
-  redis_url: REDIS_URL
-}
+  redis_url: REDIS_URL,
+};
 
 if (DATABASE_URL && DATABASE_TYPE === "postgres") {
   projectConfig.database_url = DATABASE_URL;
   delete projectConfig["database_database"];
 }
 
-
 /** @type {import('@medusajs/medusa').ConfigModule} */
 module.exports = {
   projectConfig,
   plugins,
-	modules,
+  modules,
 };
