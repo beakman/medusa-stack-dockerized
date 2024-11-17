@@ -1,0 +1,74 @@
+image: docker:20.10.16
+services:
+  - docker:20.10.16-dind
+
+stages:
+  - build
+  - test
+  - release
+  - deploy
+
+variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  GIT_SUBMODULE_STRATEGY: recursive
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+  # registry.gitlab.com/wearecodepeckers/medusa-stack-dockerized
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build:
+  stage: build
+  script:
+    - docker build -t $CONTAINER_TEST_IMAGE ./backend --no-cache
+    - docker push $CONTAINER_TEST_IMAGE
+  only:
+    - staging
+    - main
+
+release:
+  stage: release
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+  only:
+    - main
+
+deploy:production:
+  stage: deploy
+  image: docker:stable
+  variables:
+    TAG: "latest"
+  script:
+    - apk update && apk add openssh rsync
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | ssh-add -
+    - mkdir ~/.ssh
+    - chmod 700 ~/.ssh
+    - |
+      ssh "${TARGET_USER}@${TARGET_HOST}" \
+      -oStrictHostKeyChecking=accept-new \
+      "
+      cd \"${TARGET_DIRECTORY}\" &&
+      git pull &&
+      git submodule update --init --recursive &&
+      export CONTAINER_RELEASE_IMAGE=${CONTAINER_RELEASE_IMAGE} &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+      docker pull $CONTAINER_RELEASE_IMAGE &&
+      rm -rf ~/.docker &&
+      docker compose \\
+          up \\
+          --detach \\
+          --remove-orphans \\
+      &&
+      docker image prune -f
+      "
+  environment:
+    name: production
+    url: $PRODUCTION_URL
+  only:
+    - main

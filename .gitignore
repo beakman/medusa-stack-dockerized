@@ -1,0 +1,5 @@
+.env
+.DS_Store
+/.idea
+node_modules
+data

@@ -1,0 +1,3 @@
+[submodule "backend/medusa-starter-default"]
+	path = backend/medusa-starter-default
+	url = https://github.com/beakman/medusa-starter-default.git
