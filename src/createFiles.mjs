@@ -25,9 +25,10 @@ export const createFiles = async (medusaConfig) => {
   // Write the DockerfileContent to a file in an 'output' directory
   fs.mkdirSync("output", { recursive: true });
   fs.writeFileSync("output/Dockerfile.backend", dockerfileContent);
-  console.log("\n✅ Dockerfile.backend created successfully.");
+  console.log("");
+  console.log("✅ Dockerfile.backend created successfully.");
   fs.writeFileSync("output/docker-compose.yml", dockerComposeContent);
-  console.log("\n✅ docker-compose.yml created successfully.");
+  console.log("✅ docker-compose.yml created successfully.");
 
   return true;
 };

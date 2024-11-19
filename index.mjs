@@ -21,7 +21,7 @@ import { askProjectSetup } from "./src/prompts/projectSetup.mjs";
 import { askRedisSetup } from "./src/prompts/redisSetup.mjs";
 import { askModulesSetup } from "./src/prompts/modulesSetup.mjs";
 
-const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 
 const printHeading = (title) => {
   console.log("");
@@ -31,18 +31,10 @@ const printHeading = (title) => {
 
 async function welcome() {
   const rainbowTitle = chalkAnimation.rainbow(
-    "medusa-stack-dockerized v2.0 \n"
+    "Welcome to medusa-stack-dockerized v2.0! \n"
   );
-
   await sleep();
   rainbowTitle.stop();
-
-  console.log(`
-    ${chalk.bgCyan("What is this?")} 
-    
-    This wizard will guide you through the process of creating a dockerized stack
-    for your new MedusaJS project.
-  `);
 }
 
 async function afterQuestions() {
@@ -68,12 +60,14 @@ async function afterQuestions() {
   }
 
   // use loader to show the spinner
+  console.log("");
   const loader = new createSpinner("Creating docker files ...");
   loader.start();
-  await createFiles(medusaConfig);
+  await sleep();
   loader.stop();
-
-  console.log(`${chalk.blueBright("🎉 Docker files created successfully!")}`);
+  console.log("");
+  await createFiles(medusaConfig);
+  console.log(`${chalk.blueBright("🎉 Process finished.")}`);
 }
 
 // Run it with top-level await
