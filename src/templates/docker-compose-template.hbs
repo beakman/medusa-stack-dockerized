@@ -2,57 +2,67 @@ services:
   medusa_server:
     build: .
     environment:
-      MEDUSA_ADMIN_ONBOARDING_TYPE: {{ medusaAdminOnboardingType }} 
-      STORE_CORS: {{ storeCors }}
-      ADMIN_CORS: {{ adminCors }}
-      AUTH_CORS: {{ authCors }}
-      REDIS_URL: {{ redisUrl }}
-      JWT_SECRET: {{ jwtSecret }}
-      COOKIE_SECRET: {{ cookieSecret }}
-      DATABASE_URL: {{ databaseUrl }}
-      DISABLE_MEDUSA_ADMIN: {{ disableMedusaAdmin }}
-      MEDUSA_WORKER_MODE: {{ medusaWorkerMode }}
-    {{ #if dependsOn }}
+      MEDUSA_ADMIN_ONBOARDING_TYPE: {{medusaAdminOnboardingType}}
+      STORE_CORS: {{storeCors}}
+      ADMIN_CORS: {{adminCors}}
+      AUTH_CORS: {{authCors}}
+      REDIS_URL: {{redisUrl}}
+      JWT_SECRET: {{jwtSecret}}
+      COOKIE_SECRET: {{cookieSecret}}
+      DATABASE_URL: {{dbUrl}}
+      DISABLE_MEDUSA_ADMIN: false
+      MEDUSA_WORKER_MODE: server
+    {{#if createPgContainer}}
     depends_on:
-      postgres:´
+      postgres:
         condition: service_healthy
+    {{/if}}
+    {{#if createRedisContainer}}
       redis:
         condition: service_healthy
-    command: sh -c "{{ startCommand }}"
+    {{/if}}
+    command: sh -c "{{startCommand}}"
+    volumes:
+      - ./medusa-config.ts:/app/medusa-config.ts
     ports:
       - 9000:9000
 
   medusa_worker:
     build: .
     environment:
-      MEDUSA_ADMIN_ONBOARDING_TYPE: default
-      STORE_CORS: http://localhost:8000,https://docs.medusajs.com
-      ADMIN_CORS: http://localhost:5173,http://localhost:9000,https://docs.medusajs.com
-      AUTH_CORS: http://localhost:5173,http://localhost:9000,https://docs.medusajs.com
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: supersecret
-      COOKIE_SECRET: supersecret
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa
+      MEDUSA_ADMIN_ONBOARDING_TYPE: {{medusaAdminOnboardingType}}
+      STORE_CORS: {{storeCors}}
+      ADMIN_CORS: {{adminCors}}
+      AUTH_CORS: {{authCors}}
+      REDIS_URL: {{redisUrl}}
+      JWT_SECRET: {{jwtSecret}}
+      COOKIE_SECRET: {{cookieSecret}}
+      DATABASE_URL: {{dbUrl}}
       DISABLE_MEDUSA_ADMIN: true
       MEDUSA_WORKER_MODE: worker
+    {{#if createPgContainer}}
     depends_on:
       postgres:
         condition: service_healthy
+    {{/if}}
+    {{#if createRedisContainer}}
       redis:
         condition: service_healthy
+    {{/if}}
     command: sh -c "npx medusa db:migrate && yarn start"
     ports:
       - 9000:9000
 
+  {{#if createPgContainer}}
   postgres:
     image: postgres:17
     hostname: postgres
     restart: always
     container_name: postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medusa
+      POSTGRES_USER: {{dbUser}}
+      POSTGRES_PASSWORD: {{dbPassword}}
+      POSTGRES_DB: {{dbName}}
     command: >
       -c ssl=on
       -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
@@ -64,7 +74,9 @@ services:
       retries: 5
     expose:
       - 5432
+  {{/if}}
 
+  {{#if createRedisContainer}}
   redis:
     image: redis:alpine
     hostname: redis
@@ -77,3 +89,4 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+  {{/if}}

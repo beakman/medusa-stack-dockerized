@@ -1,4 +1,37 @@
-export const modules = {
+export let medusaConfig = {
+  // Medusa Configuration
+  projectName: "my-store",
+  medusaAdminOnboardingType: "default",
+  createPgContainer: true,
+  createRedisContainer: true,
+  storeCors: "http://localhost:8000,https://docs.medusajs.com",
+  adminCors:
+    "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+  authCors:
+    "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+  baseRepository: "https://github.com/medusajs/medusa-starter-default.git",
+  startCommand:
+    "npx medusa db:migrate && npx medusa user -e admin@example.com -p supersecret && yarn start",
+  jwtSecret: "supersecret",
+  cookieSecret: "supersecret",
+  createPgContainer: true,
+  createRedisContainer: true,
+  redisUrl: "redis://redis:6379",
+  cacheModule: "@medusajs/medusa/cache-inmemory",
+  eventBusModule: "@medusajs/medusa/event-bus-local",
+  fileStorageModule: "@medusajs/medusa/file-storage-local",
+  paymentModules: "@medusajs/medusa/payment-stripe",
+  stripeApiKey: "sk_test_51Iel5o0i6i5x5p6x7y8z9",
+  dbUrl: "postgres://postgres:postgres@postgres:5432/postgres",
+  s3FileUrl: "https://s3.amazonaws.com",
+  s3AccessKeyId: "AKIAIOSFODNN7EXAMPLE",
+  s3SecretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+  s3Region: "us-east-1",
+  s3Bucket: "my-bucket",
+  s3Endpoint: "https://s3.us-east-2.amazonaws.com",
+};
+
+export const medusaModules = {
   "@medusajs/medusa/cache-inmemory": {
     resolve: "@medusajs/medusa/cache-inmemory",
     options: {

@@ -1,6 +1,8 @@
 services:
   medusa_server:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     environment:
       MEDUSA_ADMIN_ONBOARDING_TYPE: default
       STORE_CORS: http://localhost:8000,https://docs.medusajs.com
@@ -22,7 +24,9 @@ services:
       - 9000:9000
 
   medusa_worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     environment:
       MEDUSA_ADMIN_ONBOARDING_TYPE: default
       STORE_CORS: http://localhost:8000,https://docs.medusajs.com
@@ -42,6 +46,31 @@ services:
     command: sh -c "npx medusa db:migrate && yarn start"
     ports:
       - 9000:9000
+
+  storefront:
+    build:
+      context: .
+      dockerfile: Dockerfile.storefront
+      args:
+        - NEXT_PUBLIC_MEDUSA_URL=http://medusa_server:9000
+        - NEXT_PUBLIC_MEDUSA_PUBLIC_URL=http://medusa_server:9000
+        - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://medusa_server:9000
+        - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_test
+        - NEXT_PUBLIC_BASE_URL=http://localhost:8000
+        - NEXT_PUBLIC_DEFAULT_REGION=us
+        - NEXT_PUBLIC_STRIPE_KEY=
+        - NEXT_PUBLIC_PAYPAL_CLIENT_ID=
+        - NEXT_PUBLIC_FEATURE_SEARCH_ENABLED=false
+        - NEXT_PUBLIC_SEARCH_APP_ID=
+        - NEXT_PUBLIC_SEARCH_ENDPOINT=http://127.0.0.1:7700
+        - NEXT_PUBLIC_SEARCH_API_KEY=
+        - NEXT_PUBLIC_INDEX_NAME=products
+        - REVALIDATE_SECRET=supersecret
+    depends_on:
+      medusa_server:
+        condition: service_started
+    ports:
+      - 8000:8000
 
   postgres:
     image: postgres:17
