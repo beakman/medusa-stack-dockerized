@@ -4,18 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     environment:
-      MEDUSA_ADMIN_ONBOARDING_TYPE: {{medusaAdminOnboardingType}}
       MEDUSA_BACKEND_URL: http://localhost:9000
-      STORE_CORS: {{storeCors}}
-      ADMIN_CORS: {{adminCors}}
-      AUTH_CORS: {{authCors}}
-      REDIS_URL: {{redisUrl}}
-      JWT_SECRET: {{jwtSecret}}
-      COOKIE_SECRET: {{cookieSecret}}
-      DATABASE_URL: {{dbUrl}}
       DISABLE_MEDUSA_ADMIN: false
       MEDUSA_WORKER_MODE: server
-      STRIPE_API_KEY: {{stripeApiKey}}    
     depends_on:
     {{#if createPgContainer}}
       postgres:
@@ -38,18 +29,9 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     environment:
-      MEDUSA_ADMIN_ONBOARDING_TYPE: {{medusaAdminOnboardingType}}
       MEDUSA_BACKEND_URL: http://localhost:9000
-      STORE_CORS: {{storeCors}}
-      ADMIN_CORS: {{adminCors}}
-      AUTH_CORS: {{authCors}}
-      REDIS_URL: {{redisUrl}}
-      JWT_SECRET: {{jwtSecret}}
-      COOKIE_SECRET: {{cookieSecret}}
-      DATABASE_URL: {{dbUrl}}
       DISABLE_MEDUSA_ADMIN: true
       MEDUSA_WORKER_MODE: worker
-      STRIPE_API_KEY: {{stripeApiKey}}    
     depends_on:
       medusa_server:
         condition: service_started
@@ -69,21 +51,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.storefront.dev
-      args:
-        - NEXT_PUBLIC_MEDUSA_URL=http://medusa_server:9000
-        - NEXT_PUBLIC_MEDUSA_PUBLIC_URL=http://medusa_server:9000
-        - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://medusa_server:9000
-        - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_test
-        - NEXT_PUBLIC_BASE_URL=http://localhost:8000
-        - NEXT_PUBLIC_DEFAULT_REGION=us
-        - NEXT_PUBLIC_STRIPE_KEY=
-        - NEXT_PUBLIC_PAYPAL_CLIENT_ID=
-        - NEXT_PUBLIC_FEATURE_SEARCH_ENABLED=false
-        - NEXT_PUBLIC_SEARCH_APP_ID=
-        - NEXT_PUBLIC_SEARCH_ENDPOINT=http://127.0.0.1:7700
-        - NEXT_PUBLIC_SEARCH_API_KEY=
-        - NEXT_PUBLIC_INDEX_NAME=products
-        - REVALIDATE_SECRET=supersecret
     depends_on:
       medusa_server:
         condition: service_started
@@ -97,11 +64,7 @@ services:
     image: postgres:17
     hostname: postgres
     restart: always
-    container_name: postgres
-    environment:
-      POSTGRES_USER: {{dbUser}}
-      POSTGRES_PASSWORD: {{dbPassword}}
-      POSTGRES_DB: {{dbName}}
+    container_name: postgres    
     command: >
       -c ssl=on
       -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
@@ -132,5 +95,42 @@ services:
       start_period: 30s
   {{/if}}
 
+  {{#if createMinioContainer}}
+  minio:
+    image: minio/minio:latest
+    ports:
+      - '9100:9000'
+      - '9101:9001'
+    volumes:
+      - uploads:/data    
+    command: server --console-address ":9001" /data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-create:
+    image: minio/mc:latest
+    container_name: minio-create
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add minio http://minio:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
+      /usr/bin/mc mb minio/$MINIO_BUCKET;
+      /usr/bin/mc policy set download minio/$MINIO_BUCKET;
+      exit 0;
+      "
+  {{/if}}
+  
+  {{#if createMeilisearchContainer}}
+  melisearch:
+    image: getmeili/meilisearch:latest
+    ports:
+      - 7700:7700
+  {{/if}}
 volumes:
   db-data:
+  uploads:

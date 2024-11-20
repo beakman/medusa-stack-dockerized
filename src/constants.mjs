@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 export let medusaConfig = {
   // Medusa Configuration
   projectName: "my-store",
@@ -31,6 +33,12 @@ export let medusaConfig = {
   s3Region: "us-east-1",
   s3Bucket: "my-bucket",
   s3Endpoint: "https://s3.us-east-2.amazonaws.com",
+  minioAccessKey: randomBytes(32).toString("hex"),
+  minioSecretKey: randomBytes(32).toString("hex"),
+  minioBucket: "medusa-server",
+  minioRootUser: "admin",
+  minioRootPassword: randomBytes(16).toString("hex"),
+  meilisearchMasterKey: randomBytes(32).toString("hex"),
 };
 
 export const medusaModules = {

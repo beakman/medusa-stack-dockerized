@@ -22,6 +22,8 @@ import { askDbSetup } from "./src/prompts/dbSetup.mjs";
 import { medusaConfig } from "./src/constants.mjs";
 import { askProjectSetup } from "./src/prompts/projectSetup.mjs";
 import { askRedisSetup } from "./src/prompts/redisSetup.mjs";
+import { askMinioSetup } from "./src/prompts/minioSetup.mjs";
+import { askMeilisearchSetup } from "./src/prompts/meilisearchSetup.mjs";
 import { askModulesSetup } from "./src/prompts/modulesSetup.mjs";
 
 async function welcome() {
@@ -103,6 +105,10 @@ heading(" Database Setup ");
 await askDbSetup();
 heading(" Redis Setup ");
 await askRedisSetup();
+heading(" Minio Setup ");
+await askMinioSetup();
+heading(" Meilisearch Setup ");
+await askMeilisearchSetup();
 heading(" Modules Setup ");
 await askModulesSetup();
 await afterQuestions();

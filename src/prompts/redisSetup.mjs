@@ -1,6 +1,4 @@
 import inquirer from "inquirer";
-import chalk from "chalk";
-import { select } from "@inquirer/prompts";
 import { medusaConfig } from "../constants.mjs";
 
 export async function askRedisSetup() {

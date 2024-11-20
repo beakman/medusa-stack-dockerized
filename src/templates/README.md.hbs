@@ -1,21 +1,53 @@
-#
-{{projectName}}
+# {{projectName}}
 
-Welcome to
-{{projectName}}, a super cool ecommerce store powered with MedusaJS. ## Next
-steps Go to you project directory and run: ```bash docker compose up -d ``` ###
-Run database migrations Run database migrations with: ```bash docker compose
-exec -it medusa_server npx medusa db:migrate ``` ### Create new users Create a
-new user with: ```bash docker compose exec -it medusa_server npx medusa user -e
-{{adminEmail}}
--p
-{{adminPassword}}
-``` or with the `--invite` flag to generate an invitation url: ```bash docker
-compose exec -it medusa_server npx medusa user -e
-{{adminEmail}}
---invite ``` ### Add some demo data Seed your project with some demo data with:
-```bash docker compose exec -it medusa_server npx medusa db:seed ``` ### Stop
-the stack Stop the stack with: ```bash docker compose down ``` ## Check your new
-store - Your admin panel is available at http://localhost:9000/app - Your
-storefront is available at http://localhost:8000 ### 📝 License Licensed under
-the [MIT license](LICENSE).
+Welcome to {{projectName}}, a super cool ecommerce store powered with MedusaJS.
+
+## Next steps
+
+Go to you project directory and run:
+```bash
+docker compose up -d
+```
+
+### Run database migrations
+
+Run database migrations with:
+```bash
+docker compose exec -it medusa_server npx medusa db:migrate
+```
+
+### Create new users
+
+Create a new user with:
+```bash
+docker compose exec -it medusa_server npx medusa user -e {{adminEmail}} -p {{adminPassword}}
+```
+
+or with the `--invite` flag to generate an invitation url: 
+
+```bash
+docker compose exec -it medusa_server npx medusa user -e {{adminEmail}} --invite
+```
+
+### Add some demo data
+
+Seed your project with some demo data with:
+```bash
+docker compose exec -it medusa_server npx medusa exec ./src/scripts/seed.ts
+```
+
+### Stop the stack
+
+Stop the stack with:
+```bash
+docker compose down
+```
+
+## Check your new store
+
+- Your admin panel is available at http://localhost:9000/app 
+- Your storefront is available at http://localhost:8000
+
+### 📝 License
+
+Licensed under the [MIT license](LICENSE).

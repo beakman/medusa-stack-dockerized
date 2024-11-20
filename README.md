@@ -31,7 +31,7 @@ docker compose exec -it medusa_server npx medusa db:migrate
 Seed your project with some demo data:
 
 ```bash
-docker compose exec -it medusa_server npx medusa db:seed
+docker compose exec -it medusa_server npx medusa exec ./src/scripts/seed.ts
 ```
 
 Create a new user:

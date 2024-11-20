@@ -29,6 +29,8 @@ const medusaConfigTemplate = fs.readFileSync(
   "utf8"
 );
 
+const envTemplate = fs.readFileSync("./src/templates/env.hbs", "utf8");
+
 const readmeTemplate = fs.readFileSync("./src/templates/README.md.hbs", "utf8");
 
 // Compile the Handlebars template
@@ -43,6 +45,7 @@ const compiledDockerfileStorefrontProdTemplate = Handlebars.compile(
 );
 const compiledDockerComposeTemplate = Handlebars.compile(dockerComposeTemplate);
 const compiledMedusaConfigTemplate = Handlebars.compile(medusaConfigTemplate);
+const compiledEnvTemplate = Handlebars.compile(envTemplate);
 const compiledReadmeTemplate = Handlebars.compile(readmeTemplate);
 
 // Now you can write the DockerfileContent to a file or use it as needed
@@ -55,6 +58,7 @@ export const createFiles = async (medusaConfig) => {
     compiledDockerfileStorefrontProdTemplate(medusaConfig);
   const dockerComposeContent = compiledDockerComposeTemplate(medusaConfig);
   const medusaConfigContent = compiledMedusaConfigTemplate(medusaConfig);
+  const envContent = compiledEnvTemplate(medusaConfig);
   const readmeContent = compiledReadmeTemplate(medusaConfig);
 
   // Assume projectName is defined and contains your project name.
@@ -64,6 +68,9 @@ export const createFiles = async (medusaConfig) => {
 
   // Create a basic README.md file
   fs.writeFileSync(`${outputDir}/README.md`, readmeContent);
+
+  // Create the .env file
+  fs.writeFileSync(`${outputDir}/.env`, envContent);
 
   // Write the Dockerfile.backend file
   fs.writeFileSync(`${outputDir}/Dockerfile.backend`, dockerfileContent);
