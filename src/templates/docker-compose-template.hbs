@@ -28,8 +28,10 @@ services:
     command: sh -c "{{{startCommand}}}"
     volumes:
       - ./medusa-config.ts:/app/medusa-config.ts
+      - ./uploads:/app/uploads
     ports:
       - 9000:9000
+    restart: always      
 
   medusa_worker:
     build:
@@ -59,7 +61,8 @@ services:
       redis:
         condition: service_healthy
     {{/if}}
-    command: sh -c "yarn start"    
+    command: sh -c "yarn start"
+    restart: always
 
   {{#if createStorefront}}
   storefront:
