@@ -7,9 +7,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "installer": "./index.js"
+    "npx-command": "./index.js"
   },
-  "keywords": [],
+  "keywords": [
+    "medusa",
+    "medusajs",
+    "ecommerce",
+    "docker",
+    "cli",
+    "docker-compose"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -20,6 +27,7 @@
     "gradient-string": "^3.0.0",
     "handlebars": "^4.7.8",
     "inquirer": "^12.0.1",
-    "nanospinner": "^1.2.0"
+    "nanospinner": "^1.2.0",
+    "slugify": "^1.6.6"
   }
 }

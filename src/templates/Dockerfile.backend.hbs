@@ -7,6 +7,9 @@ WORKDIR /app
 # Clone the repository
 RUN git clone {{ baseRepository }} .
 
+# Copy the local medusa-config.ts file to override the existing one
+COPY medusa-config.ts /app/medusa-config.ts
+
 # Install dependencies
 RUN yarn install
 

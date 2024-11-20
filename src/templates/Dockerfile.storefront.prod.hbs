@@ -14,8 +14,9 @@ RUN git clone https://github.com/medusajs/nextjs-starter-medusa.git .
 # Install dependencies
 RUN yarn install
 
+
 # Build the application
-# RUN yarn build
+RUN yarn build
 
 # SECOND STAGE: Minimal image for running the application
 FROM node:20-slim
@@ -28,5 +29,3 @@ COPY --from=builder /app .
 
 # Expose the application port
 EXPOSE 8000
-
-CMD [ "yarn", "dev" ]

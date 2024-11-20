@@ -8,7 +8,7 @@ export async function askRedisSetup() {
     {
       type: "confirm",
       name: "useRedis",
-      message: "User Redis for caching?",
+      message: "Use Redis for caching?",
       default: true,
     },
     {
@@ -21,7 +21,7 @@ export async function askRedisSetup() {
     {
       type: "input",
       name: "redisUrl",
-      message: "Enter Redis server URL",
+      message: "Redis server URL:",
       default: "redis://redis:6379",
       when: (answers) => answers.useRedis,
     },

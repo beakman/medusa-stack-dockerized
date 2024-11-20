@@ -1,8 +1,11 @@
 services:
   medusa_server:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     environment:
       MEDUSA_ADMIN_ONBOARDING_TYPE: {{medusaAdminOnboardingType}}
+      MEDUSA_BACKEND_URL: http://localhost:9000
       STORE_CORS: {{storeCors}}
       ADMIN_CORS: {{adminCors}}
       AUTH_CORS: {{authCors}}
@@ -12,8 +15,9 @@ services:
       DATABASE_URL: {{dbUrl}}
       DISABLE_MEDUSA_ADMIN: false
       MEDUSA_WORKER_MODE: server
-    {{#if createPgContainer}}
+      STRIPE_API_KEY: {{stripeApiKey}}    
     depends_on:
+    {{#if createPgContainer}}
       postgres:
         condition: service_healthy
     {{/if}}
@@ -21,16 +25,19 @@ services:
       redis:
         condition: service_healthy
     {{/if}}
-    command: sh -c "{{startCommand}}"
+    command: sh -c "{{{startCommand}}}"
     volumes:
       - ./medusa-config.ts:/app/medusa-config.ts
     ports:
       - 9000:9000
 
   medusa_worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     environment:
       MEDUSA_ADMIN_ONBOARDING_TYPE: {{medusaAdminOnboardingType}}
+      MEDUSA_BACKEND_URL: http://localhost:9000
       STORE_CORS: {{storeCors}}
       ADMIN_CORS: {{adminCors}}
       AUTH_CORS: {{authCors}}
@@ -40,8 +47,11 @@ services:
       DATABASE_URL: {{dbUrl}}
       DISABLE_MEDUSA_ADMIN: true
       MEDUSA_WORKER_MODE: worker
-    {{#if createPgContainer}}
+      STRIPE_API_KEY: {{stripeApiKey}}    
     depends_on:
+      medusa_server:
+        condition: service_started
+    {{#if createPgContainer}}
       postgres:
         condition: service_healthy
     {{/if}}
@@ -49,9 +59,35 @@ services:
       redis:
         condition: service_healthy
     {{/if}}
-    command: sh -c "npx medusa db:migrate && yarn start"
+    command: sh -c "yarn start"    
+
+  {{#if createStorefront}}
+  storefront:
+    build:
+      context: .
+      dockerfile: Dockerfile.storefront.dev
+      args:
+        - NEXT_PUBLIC_MEDUSA_URL=http://medusa_server:9000
+        - NEXT_PUBLIC_MEDUSA_PUBLIC_URL=http://medusa_server:9000
+        - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://medusa_server:9000
+        - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_test
+        - NEXT_PUBLIC_BASE_URL=http://localhost:8000
+        - NEXT_PUBLIC_DEFAULT_REGION=us
+        - NEXT_PUBLIC_STRIPE_KEY=
+        - NEXT_PUBLIC_PAYPAL_CLIENT_ID=
+        - NEXT_PUBLIC_FEATURE_SEARCH_ENABLED=false
+        - NEXT_PUBLIC_SEARCH_APP_ID=
+        - NEXT_PUBLIC_SEARCH_ENDPOINT=http://127.0.0.1:7700
+        - NEXT_PUBLIC_SEARCH_API_KEY=
+        - NEXT_PUBLIC_INDEX_NAME=products
+        - REVALIDATE_SECRET=supersecret
+    depends_on:
+      medusa_server:
+        condition: service_started
+    command: sh -c "yarn dev"
     ports:
-      - 9000:9000
+      - 8000:8000
+  {{/if}}
 
   {{#if createPgContainer}}
   postgres:
@@ -74,6 +110,8 @@ services:
       retries: 5
     expose:
       - 5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
   {{/if}}
 
   {{#if createRedisContainer}}
@@ -90,3 +128,6 @@ services:
       retries: 5
       start_period: 30s
   {{/if}}
+
+volumes:
+  db-data:

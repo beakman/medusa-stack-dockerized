@@ -13,36 +13,28 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
 import chalkAnimation from "chalk-animation";
+import slugify from "slugify";
 import { createSpinner } from "nanospinner";
-import { createFiles } from "./src/createFiles.mjs";
+import { heading } from "./src/lib/utils.mjs";
+import { sleep } from "./src/lib/utils.mjs";
+import { createFiles } from "./src/lib/builder.mjs";
 import { askDbSetup } from "./src/prompts/dbSetup.mjs";
 import { medusaConfig } from "./src/constants.mjs";
 import { askProjectSetup } from "./src/prompts/projectSetup.mjs";
 import { askRedisSetup } from "./src/prompts/redisSetup.mjs";
 import { askModulesSetup } from "./src/prompts/modulesSetup.mjs";
 
-const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
-
-const printHeading = (title) => {
-  console.log("");
-  console.log(`\n${chalk.bgCyan(title)}`);
-  console.log("");
-};
-
 async function welcome() {
-  const rainbowTitle = chalkAnimation.rainbow(
-    "Welcome to medusa-stack-dockerized v2.0! \n"
-  );
-  await sleep();
+  const rainbowTitle = chalkAnimation.rainbow(`    
+    ハ____ハ   ｡ﾟﾟ･｡･ﾟﾟ｡
+   ꒰ ⬩ ω ⬩ ꒱   ˚｡ ｡˚
+   | つ ~ Welcome to medusa-stack-dockerized v2.0 ﾟ ･｡･ﾟ
+    `);
+  await sleep(2000);
   rainbowTitle.stop();
 }
 
 async function afterQuestions() {
-  console.log("");
-  console.log(`\n${chalk.bgCyan("Confirm your answers")}`);
-  console.log("");
-  console.log(chalk.blueBright(JSON.stringify(medusaConfig, null, 2)));
-  console.log(``);
   const questions = [
     {
       type: "confirm",
@@ -52,10 +44,22 @@ async function afterQuestions() {
     },
   ];
 
-  const answers = await inquirer.prompt(questions);
+  try {
+    const answers = await inquirer.prompt(questions);
 
-  if (!answers.confirm) {
-    console.log("Aborting...");
+    if (!answers.confirm) {
+      console.log("Aborting...");
+      process.exit(0);
+    }
+  } catch (err) {
+    if (err.isTtyError) {
+      console.error("Prompt couldn't be rendered in the current environment.");
+    } else {
+      console.log(`
+      *｡*.。*∧,,,∧
+        ヾ(⌒(_=•ω•)_  bye!
+`);
+    }
     process.exit(0);
   }
 
@@ -67,24 +71,39 @@ async function afterQuestions() {
   loader.stop();
   console.log("");
   await createFiles(medusaConfig);
-  console.log(`${chalk.blueBright("🎉 Process finished.")}`);
+}
+
+function finished() {
+  console.log("");
+  console.log(
+    `\n${chalk.blueBright(
+      "🎉 Process finished! Please check your files in the 'output' folder."
+    )}`
+  );
+  heading(" Next steps ");
+  const slugifiedName = slugify(medusaConfig.projectName, { lower: true });
+  const outputDir = `output/${slugifiedName}`;
+  console.log(`  
+👉 0. Go to your project directory: ${chalk.blueBright(`cd ${outputDir}`)}
+👉 1. Start the stack with: ${chalk.blueBright("docker compose up -d")}
+👉 2. Create your admin user with ${chalk.blueBright(
+    "docker compose exec -it medusa_server " + medusaConfig.postStartCommand
+  )}
+  
+  Happy hacking! ✨
+    `);
 }
 
 // Run it with top-level await
 console.clear();
 await welcome();
-
-printHeading("Project Setup");
+heading(" Project Setup ");
 await askProjectSetup();
-
-printHeading("Database Setup");
+heading(" Database Setup ");
 await askDbSetup();
-
-printHeading("Redis Setup");
+heading(" Redis Setup ");
 await askRedisSetup();
-
-printHeading("Modules Setup");
+heading(" Modules Setup ");
 await askModulesSetup();
-
-printHeading("Summary");
 await afterQuestions();
+finished();

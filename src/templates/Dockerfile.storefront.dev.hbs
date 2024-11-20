@@ -1,17 +1,16 @@
 # Use Node.js 20 as a parent image
 FROM node:20 AS builder
 
+RUN corepack enable yarn
+
 # Set the working directory
 WORKDIR /app
 
 # Clone the repository
-RUN git clone https://github.com/medusajs/medusa-starter-default.git .
+RUN git clone https://github.com/medusajs/nextjs-starter-medusa.git .
 
 # Install dependencies
 RUN yarn install
-
-# Build the application
-RUN yarn build
 
 # SECOND STAGE: Minimal image for running the application
 FROM node:20-slim
@@ -22,5 +21,7 @@ WORKDIR /app
 # Copy necessary files from the builder stage
 COPY --from=builder /app .
 
+RUN corepack enable yarn
+
 # Expose the application port
-EXPOSE 9000
+EXPOSE 8000

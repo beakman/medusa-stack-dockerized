@@ -4,23 +4,25 @@ export let medusaConfig = {
   medusaAdminOnboardingType: "default",
   createPgContainer: true,
   createRedisContainer: true,
+  createStorefront: true,
   storeCors: "http://localhost:8000,https://docs.medusajs.com",
   adminCors:
     "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
   authCors:
     "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
   baseRepository: "https://github.com/medusajs/medusa-starter-default.git",
-  startCommand:
-    "npx medusa db:migrate && npx medusa user -e admin@example.com -p supersecret && yarn start",
+  startCommand: "npx medusa db:migrate && yarn start",
+  postStartCommand: "npx medusa user -e admin@example.com -p supersecret",
   jwtSecret: "supersecret",
   cookieSecret: "supersecret",
   createPgContainer: true,
   createRedisContainer: true,
   redisUrl: "redis://redis:6379",
+  configuredModules: [],
   cacheModule: "@medusajs/medusa/cache-inmemory",
   eventBusModule: "@medusajs/medusa/event-bus-local",
   fileStorageModule: "@medusajs/medusa/file-storage-local",
-  paymentModules: "@medusajs/medusa/payment-stripe",
+  paymentModule: "@medusajs/medusa/payment-stripe",
   stripeApiKey: "sk_test_51Iel5o0i6i5x5p6x7y8z9",
   dbUrl: "postgres://postgres:postgres@postgres:5432/postgres",
   s3FileUrl: "https://s3.amazonaws.com",
@@ -32,29 +34,29 @@ export let medusaConfig = {
 };
 
 export const medusaModules = {
-  "@medusajs/medusa/cache-inmemory": {
+  "@medusajs/medusa/cache-inmemory": `{
     resolve: "@medusajs/medusa/cache-inmemory",
     options: {
       // optional options
     },
-  },
-  "@medusajs/medusa/cache-redis": {
+  }`,
+  "@medusajs/medusa/cache-redis": `{
     resolve: "@medusajs/medusa/cache-redis",
     options: {
-      redisUrl: process.env.CACHE_REDIS_URL,
+      redisUrl: process.env.REDIS_URL,
     },
-  },
-  "@medusajs/medusa/event-bus-local": {
+  }`,
+  "@medusajs/medusa/event-bus-local": `{
     resolve: "@medusajs/medusa/event-bus-local",
-  },
-  "@medusajs/medusa/event-bus-redis": {
+  }`,
+  "@medusajs/medusa/event-bus-redis": `{
     resolve: "@medusajs/medusa/event-bus-redis",
     options: {
-      redisUrl: process.env.EVENTS_REDIS_URL,
+      redisUrl: process.env.REDIS_URL,
     },
-  },
+  }`,
   // File Storage Providers
-  "@medusajs/medusa/file-storage-local": {
+  "@medusajs/medusa/file-storage-local": `{
     resolve: "@medusajs/medusa/file",
     options: {
       providers: [
@@ -67,8 +69,8 @@ export const medusaModules = {
         },
       ],
     },
-  },
-  "@medusajs/medusa/file-storage-s3": {
+  }`,
+  "@medusajs/medusa/file-storage-s3": `{
     resolve: "@medusajs/medusa/file",
     options: {
       providers: [
@@ -87,9 +89,9 @@ export const medusaModules = {
         },
       ],
     },
-  },
+  }`,
   // Payment Providers
-  "@medusajs/medusa/payment-stripe": {
+  "@medusajs/medusa/payment-stripe": `{
     resolve: "@medusajs/medusa/payment",
     options: {
       providers: [
@@ -102,5 +104,5 @@ export const medusaModules = {
         },
       ],
     },
-  },
+  }`,
 };

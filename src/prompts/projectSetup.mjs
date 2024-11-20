@@ -1,80 +1,96 @@
 import inquirer from "inquirer";
-import chalk from "chalk";
-import { select } from "@inquirer/prompts";
 import { randomBytes } from "crypto";
 import { medusaConfig } from "../constants.mjs";
 
-async function askProjectName() {
+export async function askProjectSetup() {
   const questions = [
     {
       type: "input",
       name: "projectName",
-      message: `${chalk.yellow("What is your project name?")}`,
+      message: "Project name:",
       default: medusaConfig.projectName,
     },
     {
       type: "input",
       name: "adminEmail",
-      message: `${chalk.yellow("What is the admin's email?")}`,
+      message: "Admin email:",
       default: medusaConfig.adminEmail,
     },
     {
-      type: "input",
+      type: "password",
       name: "adminPassword",
-      message: `${chalk.yellow("What is the admin's password?")}`,
-      default: medusaConfig.adminPassword,
+      message: "Admin password:",
     },
-  ];
-
-  const answers = await inquirer.prompt(questions);
-
-  medusaConfig.projectName = answers.projectName;
-}
-
-async function askBaseRepository() {
-  const answer = await select({
-    message: `${chalk.yellow("Select a default starter:\n")}`,
-    choices: [
-      {
-        name: "https://github.com/medusajs/medusa-starter-default",
-        value: "https://github.com/medusajs/medusa-starter-default.git",
-        description: "The default MedusaJS starter",
-      },
-      {
-        name: "https://github.com/medusajs/medusa-marketplace-starter",
-        value: "https://github.com/medusajs/medusa-marketplace-starter.git",
-        description: "A marketplace starter",
-      },
-    ],
-  });
-
-  medusaConfig.baseRepository = answer;
-}
-
-async function askForSecrets() {
-  const questions = [
     {
       type: "input",
+      name: "baseRepository",
+      message: "Default starter:",
+      default: medusaConfig.baseRepository,
+    },
+    {
+      type: "password",
       name: "jwtSecret",
       message: "JWT secret:",
-      default: randomBytes(32).toString("base64"),
+    },
+    {
+      type: "password",
+      name: "cookieSecret",
+      message: "Cookie secret:",
     },
     {
       type: "input",
-      name: "cookieSecret",
-      message: "Cookie secret:",
-      default: randomBytes(32).toString("base64"),
+      name: "adminCors",
+      message: "Admin CORS:",
+      default:
+        "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+    },
+    {
+      type: "input",
+      name: "authCors",
+      message: "Auth CORS:",
+      default:
+        "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+    },
+    {
+      type: "input",
+      name: "storeCors",
+      message: "Store CORS:",
+      default: "http://localhost:8000,https://docs.medusajs.com",
+    },
+    {
+      type: "confirm",
+      name: "createStorefront",
+      message: "Create storefront?",
+      default: true,
     },
   ];
+  try {
+    const answers = await inquirer.prompt(questions);
 
-  const answers = await inquirer.prompt(questions);
-
-  medusaConfig.jwtSecret = answers.jwtSecret;
-  medusaConfig.cookieSecret = answers.cookieSecret;
-}
-
-export async function askProjectSetup() {
-  await askProjectName();
-  await askBaseRepository();
-  await askForSecrets();
+    medusaConfig.projectName = answers.projectName;
+    medusaConfig.adminEmail = answers.adminEmail;
+    medusaConfig.adminPassword = answers.adminPassword || "supersecret";
+    medusaConfig.baseRepository = answers.baseRepository;
+    medusaConfig.jwtSecret =
+      answers.jwtSecret || randomBytes(32).toString("base64");
+    medusaConfig.cookieSecret =
+      answers.cookieSecret || randomBytes(32).toString("base64");
+    medusaConfig.adminCors = answers.adminCors;
+    medusaConfig.authCors = answers.authCors;
+    medusaConfig.postStartCommand = `npx medusa user -e ${
+      answers.adminEmail || "admin@example.com"
+    } -p ${answers.adminPassword || "supersecret"}`;
+    medusaConfig.storeCors = answers.storeCors;
+    medusaConfig.createStorefront = answers.createStorefront;
+  } catch (err) {
+    if (err.isTtyError) {
+      console.error("Prompt couldn't be rendered in the current environment.");
+    } else {
+      console.log(`
+      *｡*.。*∧,,,∧
+        ヾ(⌒(_=•ω•)_  process interrupted... bye!
+`);
+    }
+    process.exit(0);
+  }
 }

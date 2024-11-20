@@ -1,10 +1,10 @@
 import inquirer from "inquirer";
-import chalk from "chalk";
 import { select } from "@inquirer/prompts";
 import { medusaConfig, medusaModules } from "../constants.mjs";
 
 async function selectCacheModules() {
   const choices = [
+    { name: "None", value: "" },
     {
       name: "In-memory",
       value: "@medusajs/medusa/cache-inmemory",
@@ -19,59 +19,55 @@ async function selectCacheModules() {
     });
   }
   const answer = await select({
-    message: "Select a cache module:",
+    message: "Cache module:",
     choices,
   });
-  medusaConfig.cacheModule = medusaModules[answer.value];
+
+  answer && medusaConfig.configuredModules.push(medusaModules[answer]);
 }
 
 async function selectEventBusModules() {
   const choices = [
+    { name: "None", value: "" },
     {
       name: "Local",
       value: "@medusajs/medusa/event-bus-local",
-      description: "Local event bus",
     },
   ];
   if (medusaConfig.useRedis) {
     choices.push({
       name: "Redis",
       value: "@medusajs/medusa/event-bus-redis",
-      description: "Redis event bus",
     });
   }
   const answer = await select({
-    message: "Select an event bus module:",
+    message: "Event bus module:",
     choices,
   });
 
-  medusaConfig.eventBusModule = medusaModules[answer.value];
+  answer && medusaConfig.configuredModules.push(medusaModules[answer]);
 }
 
 async function selectFileStorageModule() {
-  const answer = await select({
-    message: "Use a file storage module?",
-    choices: [
-      { name: "No", value: "", description: "No file storage" },
-      {
-        name: "Local",
-        value: "@medusajs/medusa/file-storage-local",
-        description: "Local file storage",
-      },
-      {
-        name: "S3",
-        value: "@medusajs/medusa/file-storage-s3",
-        description: "S3 file storage",
-      },
-    ],
-  }).then((answer) => {
-    if (answer.value == "@medusajs/medusa/file-storage-s3") {
-      return askS3FileStorageConfigs();
-    }
-    if (answer.value) {
-      medusaConfig.fileStorageModule = medusaModules[answer.value];
-    }
-  });
+  const { fileStorageModule } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "fileStorageModule",
+      message: "File storage module:",
+      choices: [
+        { name: "None", value: "" },
+        { name: "Local", value: "@medusajs/medusa/file-storage-local" },
+        { name: "S3", value: "@medusajs/medusa/file-storage-s3" },
+      ],
+    },
+  ]);
+
+  if (fileStorageModule === "@medusajs/medusa/file-storage-s3") {
+    await askS3FileStorageConfigs();
+  }
+  if (fileStorageModule) {
+    medusaConfig.configuredModules.push(medusaModules[fileStorageModule]);
+  }
 }
 
 async function askS3FileStorageConfigs() {
@@ -125,22 +121,22 @@ async function askS3FileStorageConfigs() {
 }
 
 async function selectPaymentModules() {
-  const answer = await select({
-    message: "Select a payment module:",
-    choices: [
-      {
-        name: "Stripe",
-        value: "@medusajs/medusa/payment-stripe",
-        description: "Stripe payment",
-      },
-    ],
-  });
+  const { paymentModule } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "paymentModule",
+      message: "Payment module:",
+      choices: [
+        { name: "None", value: "" },
+        { name: "Stripe", value: "@medusajs/medusa/payment-stripe" },
+      ],
+    },
+  ]);
 
-  if (answer.value == "@medusajs/medusa/payment-stripe") {
+  if (paymentModule === "@medusajs/medusa/payment-stripe") {
+    medusaConfig.configuredModules.push(medusaModules[paymentModule]);
     await askStripePaymentConfigs();
   }
-
-  medusaConfig["paymentModules"] = medusaModules[answer.value];
 }
 
 async function askStripePaymentConfigs() {
@@ -155,7 +151,7 @@ async function askStripePaymentConfigs() {
 
   const answers = await inquirer.prompt(questions);
 
-  medusaConfig["stripeApiKey"] = answers.stripeApiKey;
+  medusaConfig.stripeApiKey = answers.stripeApiKey;
 }
 
 export async function askModulesSetup() {

@@ -1,5 +1,4 @@
 import inquirer from "inquirer";
-import chalk from "chalk";
 import { randomBytes } from "crypto";
 import { medusaConfig } from "../constants.mjs";
 
@@ -14,35 +13,34 @@ export async function askDbSetup() {
     {
       type: "input",
       name: "dbUser",
-      message: "Enter the database user:",
+      message: "Database user:",
       default: "postgres",
       when: (answers) => answers.createPgContainer,
     },
     {
       type: "password",
       name: "dbPassword",
-      message: "Enter the database password:",
-      default: randomBytes(16).toString("base64"),
+      message: "Database password:",
       when: (answers) => answers.createPgContainer,
     },
     {
       type: "input",
       name: "dbName",
-      message: "Enter the database name:",
+      message: "Database name:",
       default: "medusa",
       when: (answers) => answers.createPgContainer,
     },
     {
       type: "input",
       name: "dbHost",
-      message: "Enter the database host:",
+      message: "Database host:",
       default: "postgres",
       when: (answers) => answers.createPgContainer,
     },
     {
       type: "input",
       name: "dbUrl",
-      message: "Enter the database URL:",
+      message: "Database URL:",
       default: "postgres://postgres:postgres@postgres:5432/medusa",
       when: (answers) => !answers.createPgContainer,
     },
@@ -51,12 +49,15 @@ export async function askDbSetup() {
   const answers = await inquirer.prompt(questions);
 
   medusaConfig.createPgContainer = answers.createPgContainer;
+
+  // Build the database URL
   if (answers.createPgContainer) {
     medusaConfig.dbUser = answers.dbUser;
-    medusaConfig.dbPassword = answers.dbPassword;
+    medusaConfig.dbPassword =
+      answers.dbPassword || randomBytes(16).toString("hex");
     medusaConfig.dbName = answers.dbName;
     medusaConfig.dbHost = answers.dbHost;
-    medusaConfig.dbUrl = `postgres://${answers.dbUser}:${answers.dbPassword}@${answers.dbHost}:5432/${answers.dbName}`;
+    medusaConfig.dbUrl = `postgres://${medusaConfig.dbUser}:${medusaConfig.dbPassword}@${medusaConfig.dbHost}:5432/${medusaConfig.dbName}`;
   } else {
     medusaConfig.dbUrl = answers.dbUrl;
   }
