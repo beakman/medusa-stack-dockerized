@@ -7,6 +7,8 @@ services:
       MEDUSA_BACKEND_URL: http://localhost:9000
       DISABLE_MEDUSA_ADMIN: false
       MEDUSA_WORKER_MODE: server
+    env_file:
+      - .env
     depends_on:
     {{#if createPgContainer}}
       postgres:
@@ -32,6 +34,8 @@ services:
       MEDUSA_BACKEND_URL: http://localhost:9000
       DISABLE_MEDUSA_ADMIN: true
       MEDUSA_WORKER_MODE: worker
+    env_file:
+      - .env
     depends_on:
       medusa_server:
         condition: service_started
@@ -51,6 +55,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.storefront.dev
+    env_file:
+      - .env
     depends_on:
       medusa_server:
         condition: service_started
@@ -64,7 +70,9 @@ services:
     image: postgres:17
     hostname: postgres
     restart: always
-    container_name: postgres    
+    container_name: postgres
+    env_file:
+      - .env
     command: >
       -c ssl=on
       -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
@@ -85,6 +93,8 @@ services:
     image: redis:alpine
     hostname: redis
     container_name: redis
+    env_file:
+      - .env
     expose:
       - 6379
     healthcheck:
@@ -98,6 +108,8 @@ services:
   {{#if createMinioContainer}}
   minio:
     image: minio/minio:latest
+    env_file:
+      - .env
     ports:
       - '9100:9000'
       - '9101:9001'
@@ -113,6 +125,8 @@ services:
 
   minio-create:
     image: minio/mc:latest
+    env_file:
+      - .env
     container_name: minio-create
     depends_on:
       - minio
@@ -128,6 +142,8 @@ services:
   {{#if createMeilisearchContainer}}
   melisearch:
     image: getmeili/meilisearch:latest
+    env_file:
+      - .env
     ports:
       - 7700:7700
   {{/if}}
