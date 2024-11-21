@@ -91,7 +91,13 @@ function finished() {
 👉 2. Create your admin user with ${chalk.blueBright(
     "docker compose exec -it medusa_server " + medusaConfig.postStartCommand
   )}
-  
+👉 3. Generate a publishable api key for the storefront: ${chalk.blueBright(
+    "http://localhost:9000/app/settings/publishable-api-keys"
+  )}
+👉 4. Fill the other enviroment variables for the storefront in the generated: ${chalk.blueBright(
+    ".env file"
+  )}
+👉 5. Start the storefront: ${chalk.blueBright("docker compose up -d")}  
   Happy hacking! ✨
     `);
 }
@@ -111,5 +117,11 @@ heading(" Meilisearch Setup ");
 await askMeilisearchSetup();
 heading(" Modules Setup ");
 await askModulesSetup();
+
+heading(" Summary ");
+console.log(chalk.green("\n\n"));
+console.log(medusaConfig);
+console.log(chalk.green("\n\n"));
+
 await afterQuestions();
 finished();

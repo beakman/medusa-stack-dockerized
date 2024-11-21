@@ -3,49 +3,43 @@ import { select } from "@inquirer/prompts";
 import { medusaConfig, medusaModules } from "../constants.mjs";
 
 async function selectCacheModules() {
-  const choices = [
-    { name: "None", value: "" },
+  const { cacheModule } = await inquirer.prompt([
     {
-      name: "In-memory",
-      value: "@medusajs/medusa/cache-inmemory",
-      description: "In-memory cache",
+      type: "list",
+      name: "cacheModule",
+      message: "Cache module:",
+      choices: [
+        { name: "None", value: "" },
+        { name: "In-memory", value: "@medusajs/medusa/cache-inmemory" },
+        ...(medusaConfig.useRedis
+          ? [{ name: "Redis", value: "@medusajs/medusa/cache-redis" }]
+          : []),
+      ],
     },
-  ];
-  if (medusaConfig.useRedis) {
-    choices.push({
-      name: "Redis",
-      value: "@medusajs/medusa/cache-redis",
-      description: "Redis cache",
-    });
-  }
-  const answer = await select({
-    message: "Cache module:",
-    choices,
-  });
+  ]);
 
-  answer && medusaConfig.configuredModules.push(medusaModules[answer]);
+  cacheModule &&
+    medusaConfig.configuredModules.push(medusaModules[cacheModule]);
 }
 
 async function selectEventBusModules() {
-  const choices = [
-    { name: "None", value: "" },
+  const { eventBusModule } = await inquirer.prompt([
     {
-      name: "Local",
-      value: "@medusajs/medusa/event-bus-local",
+      type: "list",
+      name: "eventBusModule",
+      message: "Event bus module:",
+      choices: [
+        { name: "None", value: "" },
+        { name: "Local", value: "@medusajs/medusa/event-bus-local" },
+        ...(medusaConfig.useRedis
+          ? [{ name: "Redis", value: "@medusajs/medusa/event-bus-redis" }]
+          : []),
+      ],
     },
-  ];
-  if (medusaConfig.useRedis) {
-    choices.push({
-      name: "Redis",
-      value: "@medusajs/medusa/event-bus-redis",
-    });
-  }
-  const answer = await select({
-    message: "Event bus module:",
-    choices,
-  });
+  ]);
 
-  answer && medusaConfig.configuredModules.push(medusaModules[answer]);
+  eventBusModule &&
+    medusaConfig.configuredModules.push(medusaModules[eventBusModule]);
 }
 
 async function selectFileStorageModule() {
