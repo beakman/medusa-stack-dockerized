@@ -1,5 +1,4 @@
 import inquirer from "inquirer";
-import { select } from "@inquirer/prompts";
 import { medusaConfig, medusaModules } from "../constants.mjs";
 
 async function selectCacheModules() {

@@ -7,8 +7,8 @@ services:
       MEDUSA_BACKEND_URL: http://localhost:9000
       DISABLE_MEDUSA_ADMIN: false
       MEDUSA_WORKER_MODE: server
-    env_file:
-      - .env
+    env_file: ".env"
+    container_name: medusa_server
     depends_on:
     {{#if createPgContainer}}
       postgres:
@@ -34,8 +34,8 @@ services:
       MEDUSA_BACKEND_URL: http://localhost:9000
       DISABLE_MEDUSA_ADMIN: true
       MEDUSA_WORKER_MODE: worker
-    env_file:
-      - .env
+    env_file: ".env"
+    container_name: medusa_worker
     depends_on:
       medusa_server:
         condition: service_started
@@ -55,8 +55,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.storefront.dev
-    env_file:
-      - .env
+    env_file: ".env"
+    container_name: storefront
     depends_on:
       medusa_server:
         condition: service_started
@@ -71,8 +71,7 @@ services:
     hostname: postgres
     restart: always
     container_name: postgres
-    env_file:
-      - .env
+    env_file: ".env"
     command: >
       -c ssl=on
       -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
@@ -93,8 +92,7 @@ services:
     image: redis:alpine
     hostname: redis
     container_name: redis
-    env_file:
-      - .env
+    env_file: ".env"
     expose:
       - 6379
     healthcheck:
@@ -108,42 +106,41 @@ services:
   {{#if createMinioContainer}}
   minio:
     image: minio/minio:latest
-    env_file:
-      - .env
+    env_file: ".env"
+    container_name: minio
     ports:
-      - '9100:9000'
-      - '9101:9001'
+      - 9100:9100
+      - 9101:9101 
     volumes:
       - uploads:/data    
-    command: server --console-address ":9001" /data
+    command: server --console-address ":9101" /data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:9100/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
 
   minio-create:
     image: minio/mc:latest
-    env_file:
-      - .env
+    env_file: ".env"
     container_name: minio-create
     depends_on:
       - minio
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc config host add minio http://minio:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
-      /usr/bin/mc mb minio/$MINIO_BUCKET;
-      /usr/bin/mc policy set download minio/$MINIO_BUCKET;
+      /usr/bin/mc config host add minio http://minio:9100 {{minioRootUser}} {{minioRootPassword}};
+      /usr/bin/mc mb minio/{{minioBucket}};
+      /usr/bin/mc anonymous set public minio/{{minioBucket}};
       exit 0;
       "
   {{/if}}
   
   {{#if createMeilisearchContainer}}
-  melisearch:
+  meilisearch:
     image: getmeili/meilisearch:latest
-    env_file:
-      - .env
+    env_file: ".env"
+    container_name: meilisearch
     ports:
       - 7700:7700
   {{/if}}

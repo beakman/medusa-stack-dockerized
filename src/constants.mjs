@@ -3,8 +3,10 @@ import { randomBytes } from "crypto";
 export let medusaConfig = {
   // Medusa Configuration
   adminEmail: "admin@example.com",
-  adminCors: "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
-  authCors: "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+  adminCors:
+    "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+  authCors:
+    "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
   baseRepository: "https://github.com/medusajs/medusa-starter-default.git",
   cacheModule: "@medusajs/medusa/cache-inmemory",
   configuredModules: [],
@@ -20,11 +22,9 @@ export let medusaConfig = {
   jwtSecret: "supersecret",
   medusaAdminOnboardingType: "default",
   meilisearchMasterKey: randomBytes(32).toString("hex"),
-  minioAccessKey: randomBytes(32).toString("hex"),
   minioBucket: "medusa-server",
   minioRootPassword: randomBytes(16).toString("hex"),
   minioRootUser: "admin",
-  minioSecretKey: randomBytes(32).toString("hex"),
   paymentModule: "@medusajs/medusa/payment-stripe",
   postStartCommand: "npx medusa user -e admin@example.com -p supersecret",
   projectName: "my-store",
@@ -91,7 +91,9 @@ export const medusaModules = {
             region: process.env.S3_REGION,
             bucket: process.env.S3_BUCKET,
             endpoint: process.env.S3_ENDPOINT,
-            // other options...
+            additional_client_config: {
+              forcePathStyle: true,
+            },
           },
         },
       ],
