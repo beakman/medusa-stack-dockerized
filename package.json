@@ -1,13 +1,13 @@
 {
   "name": "create-dockerized-medusa-app",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "medusa-stack-dockerized": "./index.js"
+    "medusa-stack-dockerized": "./index.mjs"
   },
   "keywords": [
     "medusa",
