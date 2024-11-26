@@ -18,9 +18,11 @@ services:
       redis:
         condition: service_healthy
     {{/if}}
-    command: sh -c "{{{startCommand}}}"
     volumes:
       - ./medusa-config.ts:/app/medusa-config.ts
+      - ./seed.ts:/app/src/scripts/seed.ts
+      - ./check-seed.ts:/app/src/scripts/check-seed.ts
+      - ./check-user-exists.ts:/app/src/scripts/check-user-exists.ts
       - ./uploads:/app/uploads
     ports:
       - 9000:9000
@@ -60,6 +62,10 @@ services:
     depends_on:
       medusa_server:
         condition: service_started
+      {{#if createMinioContainer}}
+      minio:
+        condition: service_healthy
+      {{/if}}
     command: sh -c "yarn dev"
     ports:
       - 8000:8000

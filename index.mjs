@@ -97,8 +97,9 @@ function finished() {
 👉 4. Fill the other enviroment variables for the storefront in the generated: ${chalk.blueBright(
     ".env file"
   )}
-👉 5. Start the storefront: ${chalk.blueBright("docker compose up -d")}  
-  Happy hacking! ✨
+👉 5. Start the storefront: ${chalk.blueBright("docker compose up -d")} 
+
+Happy hacking! ✨
     `);
 }
 
@@ -107,16 +108,23 @@ console.clear();
 await welcome();
 heading(" Project Setup ");
 await askProjectSetup();
-heading(" Database Setup ");
-await askDbSetup();
-heading(" Redis Setup ");
-await askRedisSetup();
-heading(" Minio Setup ");
-await askMinioSetup();
-heading(" Meilisearch Setup ");
-await askMeilisearchSetup();
-heading(" Modules Setup ");
-await askModulesSetup();
+
+if (medusaConfig.useDefaultSettings) {
+  console.log(chalk.green("\n\n"));
+  console.log(chalk.green("🌈  Going with default settings ..."));
+  console.log(chalk.green("\n\n"));
+} else {
+  heading(" Database Setup ");
+  await askDbSetup();
+  heading(" Redis Setup ");
+  await askRedisSetup();
+  heading(" Minio Setup ");
+  await askMinioSetup();
+  heading(" Meilisearch Setup ");
+  await askMeilisearchSetup();
+  heading(" Modules Setup ");
+  await askModulesSetup();
+}
 
 heading(" Summary ");
 console.log(chalk.green("\n\n"));

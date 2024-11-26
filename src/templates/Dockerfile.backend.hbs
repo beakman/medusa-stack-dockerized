@@ -5,10 +5,14 @@ FROM node:20 AS builder
 WORKDIR /app
 
 # Clone the repository
-RUN git clone {{ baseRepository }} .
+RUN git clone {{baseRepository}} .
 
 # Copy the local medusa-config.ts file to override the existing one
 COPY medusa-config.ts /app/medusa-config.ts
+
+COPY entrypoint.sh /app/entrypoint.sh
+
+RUN chmod +x /app/entrypoint.sh
 
 # Install dependencies
 RUN yarn install
@@ -27,3 +31,5 @@ COPY --from=builder /app .
 
 # Expose the application port
 EXPOSE 9000
+
+ENTRYPOINT [ "entrypoint.sh" ]

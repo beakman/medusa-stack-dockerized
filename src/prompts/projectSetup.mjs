@@ -11,31 +11,42 @@ export async function askProjectSetup() {
       default: medusaConfig.projectName,
     },
     {
+      type: "confirm",
+      name: "useDefaultSettings",
+      message: "Proceed with default settings and modules?",
+      default: true,
+    },
+    {
       type: "input",
       name: "adminEmail",
       message: "Admin email:",
       default: medusaConfig.adminEmail,
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "password",
       name: "adminPassword",
       message: "Admin password:",
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "input",
       name: "baseRepository",
       message: "Default starter:",
       default: medusaConfig.baseRepository,
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "password",
       name: "jwtSecret",
       message: "JWT secret:",
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "password",
       name: "cookieSecret",
       message: "Cookie secret:",
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "input",
@@ -43,6 +54,7 @@ export async function askProjectSetup() {
       message: "Admin CORS:",
       default:
         "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "input",
@@ -50,38 +62,45 @@ export async function askProjectSetup() {
       message: "Auth CORS:",
       default:
         "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "input",
       name: "storeCors",
       message: "Store CORS:",
       default: "http://localhost:8000,https://docs.medusajs.com",
+      when: (answers) => !answers.useDefaultSettings,
     },
     {
       type: "confirm",
       name: "createStorefront",
       message: "Create storefront?",
       default: true,
+      when: (answers) => !answers.useDefaultSettings,
     },
   ];
   try {
     const answers = await inquirer.prompt(questions);
 
     medusaConfig.projectName = answers.projectName;
-    medusaConfig.adminEmail = answers.adminEmail;
-    medusaConfig.adminPassword = answers.adminPassword || "supersecret";
-    medusaConfig.baseRepository = answers.baseRepository;
-    medusaConfig.jwtSecret =
-      answers.jwtSecret || randomBytes(32).toString("base64");
-    medusaConfig.cookieSecret =
-      answers.cookieSecret || randomBytes(32).toString("base64");
-    medusaConfig.adminCors = answers.adminCors;
-    medusaConfig.authCors = answers.authCors;
-    medusaConfig.postStartCommand = `npx medusa user -e ${
-      answers.adminEmail || "admin@example.com"
-    } -p ${answers.adminPassword || "supersecret"}`;
-    medusaConfig.storeCors = answers.storeCors;
-    medusaConfig.createStorefront = answers.createStorefront;
+    medusaConfig.useDefaultSettings = answers.useDefaultSettings;
+
+    if (!answers.useDefaultSettings) {
+      medusaConfig.adminEmail = answers.adminEmail;
+      medusaConfig.adminPassword = answers.adminPassword || "supersecret";
+      medusaConfig.baseRepository = answers.baseRepository;
+      medusaConfig.jwtSecret =
+        answers.jwtSecret || randomBytes(32).toString("base64");
+      medusaConfig.cookieSecret =
+        answers.cookieSecret || randomBytes(32).toString("base64");
+      medusaConfig.adminCors = answers.adminCors;
+      medusaConfig.authCors = answers.authCors;
+      medusaConfig.postStartCommand = `npx medusa user -e ${
+        answers.adminEmail || "admin@example.com"
+      } -p ${answers.adminPassword || "supersecret"}`;
+      medusaConfig.storeCors = answers.storeCors;
+      medusaConfig.createStorefront = answers.createStorefront;
+    }
   } catch (err) {
     if (err.isTtyError) {
       console.error("Prompt couldn't be rendered in the current environment.");
