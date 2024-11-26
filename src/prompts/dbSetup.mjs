@@ -14,7 +14,7 @@ export async function askDbSetup() {
       type: "input",
       name: "dbUser",
       message: "Database user:",
-      default: "postgres",
+      default: medusaConfig.dbUser,
       when: (answers) => answers.createPgContainer,
     },
     {
@@ -27,21 +27,21 @@ export async function askDbSetup() {
       type: "input",
       name: "dbName",
       message: "Database name:",
-      default: "medusa",
+      default: medusaConfig.dbName,
       when: (answers) => answers.createPgContainer,
     },
     {
       type: "input",
       name: "dbHost",
       message: "Database host:",
-      default: "postgres",
+      default: medusaConfig.dbHost,
       when: (answers) => answers.createPgContainer,
     },
     {
       type: "input",
       name: "dbUrl",
       message: "Database URL:",
-      default: "postgres://postgres:postgres@postgres:5432/medusa",
+      default: medusaConfig.dbUrl,
       when: (answers) => !answers.createPgContainer,
     },
   ];
