@@ -27,6 +27,7 @@ export async function askProjectSetup() {
       type: "password",
       name: "adminPassword",
       message: "Admin password:",
+      default: medusaConfig.adminPassword,
       when: (answers) => !answers.useDefaultSettings,
     },
     {
@@ -87,7 +88,7 @@ export async function askProjectSetup() {
 
     if (!answers.useDefaultSettings) {
       medusaConfig.adminEmail = answers.adminEmail;
-      medusaConfig.adminPassword = answers.adminPassword || "supersecret";
+      medusaConfig.adminPassword = answers.adminPassword;
       medusaConfig.baseRepository = answers.baseRepository;
       medusaConfig.jwtSecret =
         answers.jwtSecret || randomBytes(32).toString("base64");
@@ -95,9 +96,7 @@ export async function askProjectSetup() {
         answers.cookieSecret || randomBytes(32).toString("base64");
       medusaConfig.adminCors = answers.adminCors;
       medusaConfig.authCors = answers.authCors;
-      medusaConfig.postStartCommand = `npx medusa user -e ${
-        answers.adminEmail || "admin@example.com"
-      } -p ${answers.adminPassword || "supersecret"}`;
+      medusaConfig.postStartCommand = `npx medusa user -e ${answers.adminEmail} -p ${answers.adminPassword}`;
       medusaConfig.storeCors = answers.storeCors;
       medusaConfig.createStorefront = answers.createStorefront;
     }
@@ -108,7 +107,7 @@ export async function askProjectSetup() {
       console.log(`
       *｡*.。*∧,,,∧
         ヾ(⌒(_=•ω•)_  process interrupted... bye!
-`);
+      `);
     }
     process.exit(0);
   }

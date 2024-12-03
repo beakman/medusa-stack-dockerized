@@ -19,10 +19,10 @@ services:
         condition: service_healthy
     {{/if}}
     volumes:
-      - ./medusa-config.ts:/app/medusa-config.ts
-      - ./seed.ts:/app/src/scripts/seed.ts
-      - ./check-seed.ts:/app/src/scripts/check-seed.ts
-      - ./check-user-exists.ts:/app/src/scripts/check-user-exists.ts
+      - ./medusa/medusa-config.ts:/app/medusa-config.ts
+      - ./medusa/seed.ts:/app/src/scripts/seed.ts
+      - ./medusa/check-seed.ts:/app/src/scripts/check-seed.ts
+      - ./medusa/check-user-exists.ts:/app/src/scripts/check-user-exists.ts
       - ./uploads:/app/uploads
     ports:
       - 9000:9000
@@ -56,7 +56,7 @@ services:
   storefront:
     build:
       context: .
-      dockerfile: Dockerfile.storefront.dev
+      dockerfile: Dockerfile.storefront
     env_file: ".env"
     container_name: storefront
     depends_on:

@@ -148,10 +148,22 @@ async function askStripePaymentConfigs() {
 }
 
 export async function askModulesSetup() {
-  if (medusaConfig.useRedis) {
-    await selectCacheModules();
-    await selectEventBusModules();
+  try {
+    if (medusaConfig.useRedis) {
+      await selectCacheModules();
+      await selectEventBusModules();
+    }
+    await selectFileStorageModule();
+    await selectPaymentModules();
+  } catch (err) {
+    if (err.isTtyError) {
+      console.error("Prompt couldn't be rendered in the current environment.");
+    } else {
+      console.log(`
+      *｡*.。*∧,,,∧
+        ヾ(⌒(_=•ω•)_  process interrupted... bye!
+      `);
+    }
+    process.exit(0);
   }
-  await selectFileStorageModule();
-  await selectPaymentModules();
 }

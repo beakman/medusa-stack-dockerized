@@ -79,6 +79,7 @@ export const medusaModules = {
 export let medusaConfig = {
   // Medusa Configuration
   adminEmail: "admin@example.com",
+  adminPassword: "supersecret",
   adminCors:
     "http://localhost:5173,http://localhost:9000,https://docs.medusajs.com",
   authCors:
@@ -97,11 +98,11 @@ export let medusaConfig = {
   createRedisContainer: true,
   createRedisContainer: true,
   createStorefront: true,
-  dbUrl: "postgres://postgres:postgres@postgres:5432/postgres",
   dbUser: "postgres",
-  dbPassword: "postgres",
-  dbName: "postgres",
-  dbHost: "postgres",
+  dbPassword: randomBytes(16).toString("hex"),
+  dbName: "medusadb",
+  dbHost: "medusa",
+  dbPort: "5432",
   eventBusModule: "@medusajs/medusa/event-bus-local",
   fileStorageModule: "@medusajs/medusa/file-storage-local",
   jwtSecret: "supersecret",

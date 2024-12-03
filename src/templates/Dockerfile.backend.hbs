@@ -8,7 +8,12 @@ WORKDIR /app
 RUN git clone {{baseRepository}} .
 
 # Copy the local medusa-config.ts file to override the existing one
-COPY medusa-config.ts /app/medusa-config.ts
+COPY medusa/medusa-config.ts /app/medusa-config.ts
+
+# Copy Medusa helper scripts
+COPY medusa/seed.ts /app/medusa/seed.ts
+COPY medusa/check-seed.ts /app/src/scripts/check-seed.ts
+COPY medusa/check-user-exists.ts /app/src/scripts/check-user-exists.ts
 
 COPY entrypoint.sh /app/entrypoint.sh
 
@@ -32,4 +37,4 @@ COPY --from=builder /app .
 # Expose the application port
 EXPOSE 9000
 
-ENTRYPOINT [ "entrypoint.sh" ]
+ENTRYPOINT [ "/app/entrypoint.sh" ]

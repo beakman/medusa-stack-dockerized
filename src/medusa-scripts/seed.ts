@@ -295,7 +295,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   // Update the NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY key in the .env.storefront file
   // with the publishable API key value
-  const envFilePath = path.join(process.cwd(), ".env.storefront");
+  const envFilePath = path.join(process.cwd(), ".env");
   const envFile = fs.readFileSync(envFilePath, "utf8");
   const envFileContent = envFile.replace(
     "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=",

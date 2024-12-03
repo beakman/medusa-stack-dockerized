@@ -1,16 +1,21 @@
 #!/bin/sh
 
+echo "[+] Check if seed data exists ..."
+
 # Check if seed data exists
 npx medusa exec ./src/scripts/check-seed.ts
 
 if [ $? -eq 0 ]; then
+  echo "[+] Seed data does not exist. Seeding data ..."
   npx medusa db:migrate && npx medusa exec ./src/scripts/seed.ts
 fi
 
 # Check if user exists
+echo "[+] Check if user exists ..."
 npx medusa exec ./src/scripts/check-user-exists.ts {{adminEmail}}
 
 if [ $? -eq 0 ]; then
+  echo "[+] User does not exist. Creating user ..."
   npx medusa user -e {{adminEmail}} -p {{adminPassword}}
 fi
 

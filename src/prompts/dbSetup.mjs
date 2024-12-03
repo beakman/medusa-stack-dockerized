@@ -21,6 +21,7 @@ export async function askDbSetup() {
       type: "password",
       name: "dbPassword",
       message: "Database password:",
+      default: medusaConfig.dbPassword,
       when: (answers) => answers.createPgContainer,
     },
     {
@@ -39,10 +40,10 @@ export async function askDbSetup() {
     },
     {
       type: "input",
-      name: "dbUrl",
-      message: "Database URL:",
-      default: medusaConfig.dbUrl,
-      when: (answers) => !answers.createPgContainer,
+      name: "dbPort",
+      message: "Database port:",
+      default: medusaConfig.dbHost,
+      when: (answers) => answers.createPgContainer,
     },
   ];
 
@@ -50,15 +51,9 @@ export async function askDbSetup() {
 
   medusaConfig.createPgContainer = answers.createPgContainer;
 
-  // Build the database URL
-  if (answers.createPgContainer) {
-    medusaConfig.dbUser = answers.dbUser;
-    medusaConfig.dbPassword =
-      answers.dbPassword || randomBytes(16).toString("hex");
-    medusaConfig.dbName = answers.dbName;
-    medusaConfig.dbHost = answers.dbHost;
-    medusaConfig.dbUrl = `postgres://${medusaConfig.dbUser}:${medusaConfig.dbPassword}@${medusaConfig.dbHost}:5432/${medusaConfig.dbName}`;
-  } else {
-    medusaConfig.dbUrl = answers.dbUrl;
-  }
+  medusaConfig.dbUser = answers.dbUser;
+  medusaConfig.dbPassword = answers.dbPassword;
+  medusaConfig.dbName = answers.dbName;
+  medusaConfig.dbHost = answers.dbHost;
+  medusaConfig.dbPort = answers.dbPort;
 }

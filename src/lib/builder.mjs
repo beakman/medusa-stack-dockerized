@@ -10,7 +10,7 @@ const dockerfileBackendTemplate = fs.readFileSync(
 );
 
 const dockerfileStorefrontTemplate = fs.readFileSync(
-  "./src/templates/Dockerfile.storefront.dev.hbs",
+  "./src/templates/Dockerfile.storefront.hbs",
   "utf8"
 );
 
@@ -77,7 +77,9 @@ export const createFiles = async (medusaConfig) => {
   // Assume projectName is defined and contains your project name.
   const slugifiedName = slugify(medusaConfig.projectName, { lower: true });
   const outputDir = `output/${slugifiedName}`;
-  fs.mkdirSync(`${outputDir}`, { recursive: true });
+
+  // Create directories
+  fs.mkdirSync(`${outputDir}/medusa`, { recursive: true });
 
   // Create a basic README.md file
   fs.writeFileSync(`${outputDir}/README.md`, readmeContent);
@@ -98,10 +100,10 @@ export const createFiles = async (medusaConfig) => {
 
   // Write the Dockerfile.storefront file
   fs.writeFileSync(
-    `${outputDir}/Dockerfile.storefront.dev`,
+    `${outputDir}/Dockerfile.storefront`,
     dockerfileStorefrontContent
   );
-  console.log("✅ Dockerfile.storefront.dev created successfully.");
+  console.log("✅ Dockerfile.storefront created successfully.");
   sleep(500);
 
   fs.writeFileSync(
@@ -117,26 +119,30 @@ export const createFiles = async (medusaConfig) => {
   sleep(500);
 
   // Write the medusa-config.ts file
-  fs.writeFileSync(`${outputDir}/medusa-config.ts`, medusaConfigContent);
+  fs.writeFileSync(`${outputDir}/medusa/medusa-config.ts`, medusaConfigContent);
   console.log("✅ medusa-config.ts created successfully.");
+  sleep(500);
 
   // Copy the seed.ts file
-  fs.copyFileSync("./src/templates/seed.ts", `${outputDir}/seed.ts`);
+  fs.copyFileSync(
+    "./src/medusa-scripts/seed.ts",
+    `${outputDir}/medusa/seed.ts`
+  );
   console.log("✅ seed.ts created successfully.");
   sleep(500);
 
   // Copy the check-seed.ts file
   fs.copyFileSync(
-    "./src/templates/check-seed.ts",
-    `${outputDir}/check-seed.ts`
+    "./src/medusa-scripts/check-seed.ts",
+    `${outputDir}/medusa/check-seed.ts`
   );
   console.log("✅ check-seed.ts created successfully.");
   sleep(500);
 
   // Copy the check-user-exists.ts file
   fs.copyFileSync(
-    "./src/templates/check-user-exists.ts",
-    `${outputDir}/check-user-exists.ts`
+    "./src/medusa-scripts/check-user-exists.ts",
+    `${outputDir}/medusa/check-user-exists.ts`
   );
   console.log("✅ check-user-exists.ts created successfully.");
 
