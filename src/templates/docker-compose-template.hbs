@@ -9,6 +9,7 @@ services:
       MEDUSA_WORKER_MODE: server
     env_file: ".env"
     container_name: medusa_server
+    hostname: medusa_server
     depends_on:
     {{#if createPgContainer}}
       postgres:
@@ -19,14 +20,15 @@ services:
         condition: service_healthy
     {{/if}}
     volumes:
-      - ./medusa/medusa-config.ts:/app/medusa-config.ts
-      - ./medusa/seed.ts:/app/src/scripts/seed.ts
-      - ./medusa/check-seed.ts:/app/src/scripts/check-seed.ts
-      - ./medusa/check-user-exists.ts:/app/src/scripts/check-user-exists.ts
+      - ./medusa-config.ts:/app/medusa-config.ts
       - ./uploads:/app/uploads
+    networks:
+      - medusa-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - 9000:9000
-    restart: always      
+    restart: unless-stopped
 
   medusa_worker:
     build:
@@ -49,14 +51,26 @@ services:
       redis:
         condition: service_healthy
     {{/if}}
+    networks:
+      - medusa-network
     command: sh -c "yarn start"
-    restart: always
+    restart: unless-stopped
 
   {{#if createStorefront}}
   storefront:
     build:
       context: .
+      {{#eq nodeEnvironment "development"}}
       dockerfile: Dockerfile.storefront
+      {{else}}
+      dockerfile: Dockerfile.storefront.prod
+      {{/eq}}
+      network: host
+      args:
+        - MEDUSA_BACKEND_URL=http://127.0.0.1:9000
+        - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=
+        - EMAIL={{adminEmail}}
+        - PASSWORD={{adminPassword}}
     env_file: ".env"
     container_name: storefront
     depends_on:
@@ -66,15 +80,15 @@ services:
       minio:
         condition: service_healthy
       {{/if}}
-    command: sh -c "yarn dev"
     ports:
       - 8000:8000
+    restart: unless-stopped
   {{/if}}
 
   {{#if createPgContainer}}
   postgres:
     image: postgres:17
-    hostname: postgres
+    hostname: {{dbHost}}
     restart: always
     container_name: postgres
     env_file: ".env"
@@ -87,6 +101,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - medusa-network
     expose:
       - 5432
     volumes:
@@ -99,6 +115,8 @@ services:
     hostname: redis
     container_name: redis
     env_file: ".env"
+    networks:
+      - medusa-network
     expose:
       - 6379
     healthcheck:
@@ -153,3 +171,6 @@ services:
 volumes:
   db-data:
   uploads:
+
+networks:
+  medusa-network:

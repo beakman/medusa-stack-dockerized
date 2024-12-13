@@ -1,7 +1,10 @@
 import Handlebars from "handlebars";
+import helpers from "handlebars-helpers";
 import fs from "fs";
 import { sleep } from "./utils.mjs";
 import slugify from "slugify";
+
+helpers({ handlebars: Handlebars });
 
 // Read the template file
 const dockerfileBackendTemplate = fs.readFileSync(
@@ -29,14 +32,25 @@ const medusaConfigTemplate = fs.readFileSync(
   "utf8"
 );
 
-const envTemplate = fs.readFileSync("./src/templates/env.hbs", "utf8");
-const envStorefrontTemplate = fs.readFileSync(
-  "./src/templates/env.storefront.hbs",
+const storefrontNextConfigTemplate = fs.readFileSync(
+  "./src/templates/storefront.next.config.js.hbs",
   "utf8"
 );
 
+const envTemplate = fs.readFileSync("./src/templates/env.hbs", "utf8");
+
 const entrypointTemplate = fs.readFileSync(
   "./src/templates/entrypoint.sh.hbs",
+  "utf8"
+);
+
+const replaceEnvVarsTemplate = fs.readFileSync(
+  "./src/templates/replace-env-vars.sh.hbs",
+  "utf8"
+);
+
+const createPublishableKeyTemplate = fs.readFileSync(
+  "./src/templates/create-publishable-key.sh.hbs",
   "utf8"
 );
 
@@ -54,9 +68,17 @@ const compiledDockerfileStorefrontProdTemplate = Handlebars.compile(
 );
 const compiledDockerComposeTemplate = Handlebars.compile(dockerComposeTemplate);
 const compiledMedusaConfigTemplate = Handlebars.compile(medusaConfigTemplate);
+const compiledStorefrontNextConfigTemplate = Handlebars.compile(
+  storefrontNextConfigTemplate
+);
 const compiledEnvTemplate = Handlebars.compile(envTemplate);
-const compiledEnvStorefrontTemplate = Handlebars.compile(envStorefrontTemplate);
 const compiledEntrypointTemplate = Handlebars.compile(entrypointTemplate);
+const compiledReplaceEnvVarsTemplate = Handlebars.compile(
+  replaceEnvVarsTemplate
+);
+const compiledCreatePublishableKeyTemplate = Handlebars.compile(
+  createPublishableKeyTemplate
+);
 const compiledReadmeTemplate = Handlebars.compile(readmeTemplate);
 
 // Now you can write the DockerfileContent to a file or use it as needed
@@ -69,9 +91,13 @@ export const createFiles = async (medusaConfig) => {
     compiledDockerfileStorefrontProdTemplate(medusaConfig);
   const dockerComposeContent = compiledDockerComposeTemplate(medusaConfig);
   const medusaConfigContent = compiledMedusaConfigTemplate(medusaConfig);
+  const storefrontNextConfigContent =
+    compiledStorefrontNextConfigTemplate(medusaConfig);
   const envContent = compiledEnvTemplate(medusaConfig);
-  const envStorefrontContent = compiledEnvStorefrontTemplate(medusaConfig);
   const entrypointContent = compiledEntrypointTemplate(medusaConfig);
+  const replaceEnvVarsContent = compiledReplaceEnvVarsTemplate(medusaConfig);
+  const createPublishableKeyContent =
+    compiledCreatePublishableKeyTemplate(medusaConfig);
   const readmeContent = compiledReadmeTemplate(medusaConfig);
 
   // Assume projectName is defined and contains your project name.
@@ -79,19 +105,13 @@ export const createFiles = async (medusaConfig) => {
   const outputDir = `output/${slugifiedName}`;
 
   // Create directories
-  fs.mkdirSync(`${outputDir}/medusa`, { recursive: true });
+  fs.mkdirSync(`${outputDir}`, { recursive: true });
 
   // Create a basic README.md file
   fs.writeFileSync(`${outputDir}/README.md`, readmeContent);
 
-  // Create the entrypoint.sh file
-  fs.writeFileSync(`${outputDir}/entrypoint.sh`, entrypointContent);
-
   // Create the .env file
   fs.writeFileSync(`${outputDir}/.env`, envContent);
-
-  // Create the .env.storefront file
-  fs.writeFileSync(`${outputDir}/.env.storefront`, envStorefrontContent);
 
   // Write the Dockerfile.backend file
   fs.writeFileSync(`${outputDir}/Dockerfile.backend`, dockerfileContent);
@@ -108,7 +128,7 @@ export const createFiles = async (medusaConfig) => {
 
   fs.writeFileSync(
     `${outputDir}/Dockerfile.storefront.prod`,
-    dockerfileStorefrontContent
+    dockerfileStorefrontProdContent
   );
   console.log("✅ Dockerfile.storefront.prod created successfully.");
   sleep(500);
@@ -119,32 +139,34 @@ export const createFiles = async (medusaConfig) => {
   sleep(500);
 
   // Write the medusa-config.ts file
-  fs.writeFileSync(`${outputDir}/medusa/medusa-config.ts`, medusaConfigContent);
+  fs.writeFileSync(`${outputDir}/medusa-config.ts`, medusaConfigContent);
   console.log("✅ medusa-config.ts created successfully.");
   sleep(500);
 
-  // Copy the seed.ts file
-  fs.copyFileSync(
-    "./src/medusa-scripts/seed.ts",
-    `${outputDir}/medusa/seed.ts`
+  // Write the storefront.next.config.js file
+  fs.writeFileSync(
+    `${outputDir}/storefront.next.config.js`,
+    storefrontNextConfigContent
   );
-  console.log("✅ seed.ts created successfully.");
+  console.log("✅ next.config.js created successfully.");
+  sleep(500);
+  // Write the entrypoint.sh file
+  fs.writeFileSync(`${outputDir}/entrypoint.sh`, entrypointContent);
+  console.log("✅ entrypoint.sh created successfully.");
   sleep(500);
 
-  // Copy the check-seed.ts file
-  fs.copyFileSync(
-    "./src/medusa-scripts/check-seed.ts",
-    `${outputDir}/medusa/check-seed.ts`
-  );
-  console.log("✅ check-seed.ts created successfully.");
+  // Write the replace-env-vars.sh file
+  fs.writeFileSync(`${outputDir}/replace-env-vars.sh`, replaceEnvVarsContent);
+  console.log("✅ replace-env-vars.sh created successfully.");
   sleep(500);
 
-  // Copy the check-user-exists.ts file
-  fs.copyFileSync(
-    "./src/medusa-scripts/check-user-exists.ts",
-    `${outputDir}/medusa/check-user-exists.ts`
+  // Write the create-publishable-key.sh file
+  fs.writeFileSync(
+    `${outputDir}/create-publishable-key.sh`,
+    createPublishableKeyContent
   );
-  console.log("✅ check-user-exists.ts created successfully.");
+  console.log("✅ create-publishable-key.sh created successfully.");
+  sleep(500);
 
   return true;
 };

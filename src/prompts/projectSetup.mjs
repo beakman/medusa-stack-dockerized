@@ -11,6 +11,13 @@ export async function askProjectSetup() {
       default: medusaConfig.projectName,
     },
     {
+      type: "list",
+      name: "nodeEnvironment",
+      message: "Node environment:",
+      choices: ["development", "production"],
+      default: "development",
+    },
+    {
       type: "confirm",
       name: "useDefaultSettings",
       message: "Proceed with default settings and modules?",
@@ -100,6 +107,32 @@ export async function askProjectSetup() {
       medusaConfig.storeCors = answers.storeCors;
       medusaConfig.createStorefront = answers.createStorefront;
     }
+  } catch (err) {
+    if (err.isTtyError) {
+      console.error("Prompt couldn't be rendered in the current environment.");
+    } else {
+      console.log(`
+      *｡*.。*∧,,,∧
+        ヾ(⌒(_=•ω•)_  process interrupted... bye!
+      `);
+    }
+    process.exit(0);
+  }
+}
+
+export async function askSeedDemoData() {
+  const questions = [
+    {
+      type: "confirm",
+      name: "seedDemoData",
+      message: "Do you want to seed demo data? (recommended)",
+      default: true,
+    },
+  ];
+
+  try {
+    const answers = await inquirer.prompt(questions);
+    medusaConfig.seedDemoData = answers.seedDemoData;
   } catch (err) {
     if (err.isTtyError) {
       console.error("Prompt couldn't be rendered in the current environment.");

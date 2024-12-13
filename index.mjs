@@ -20,7 +20,10 @@ import { sleep } from "./src/lib/utils.mjs";
 import { createFiles } from "./src/lib/builder.mjs";
 import { askDbSetup } from "./src/prompts/dbSetup.mjs";
 import { medusaConfig } from "./src/constants.mjs";
-import { askProjectSetup } from "./src/prompts/projectSetup.mjs";
+import {
+  askProjectSetup,
+  askSeedDemoData,
+} from "./src/prompts/projectSetup.mjs";
 import { askRedisSetup } from "./src/prompts/redisSetup.mjs";
 import { askMinioSetup } from "./src/prompts/minioSetup.mjs";
 import { askMeilisearchSetup } from "./src/prompts/meilisearchSetup.mjs";
@@ -36,7 +39,7 @@ async function welcome() {
   rainbowTitle.stop();
 }
 
-async function afterQuestions() {
+async function confirmProccess() {
   const questions = [
     {
       type: "confirm",
@@ -131,5 +134,6 @@ console.log(chalk.green("\n\n"));
 console.log(medusaConfig);
 console.log(chalk.green("\n\n"));
 
-await afterQuestions();
+await askSeedDemoData();
+await confirmProccess();
 finished();
