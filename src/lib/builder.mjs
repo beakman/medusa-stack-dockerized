@@ -1,60 +1,75 @@
 import Handlebars from "handlebars";
 import helpers from "handlebars-helpers";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { sleep } from "./utils.mjs";
 import slugify from "slugify";
+
+// Get the current directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const templatePath = path.join(__dirname, '../../src/templates/');
 
 helpers({ handlebars: Handlebars });
 
 // Read the template file
 const dockerfileBackendTemplate = fs.readFileSync(
-  "./src/templates/Dockerfile.backend.hbs",
+  path.join(templatePath, "Dockerfile.backend.hbs"),
   "utf8"
 );
 
 const dockerfileStorefrontTemplate = fs.readFileSync(
-  "./src/templates/Dockerfile.storefront.hbs",
+  path.join(templatePath, "Dockerfile.storefront.hbs"),
   "utf8"
 );
 
 const dockerfileStorefrontProdTemplate = fs.readFileSync(
-  "./src/templates/Dockerfile.storefront.prod.hbs",
+  path.join(templatePath, "Dockerfile.storefront.prod.hbs"),
   "utf8"
 );
 
 const dockerComposeTemplate = fs.readFileSync(
-  "./src/templates/docker-compose-template.hbs",
+  path.join(templatePath, "docker-compose-template.hbs"),
   "utf8"
 );
 
 const medusaConfigTemplate = fs.readFileSync(
-  "./src/templates/medusa-config.ts.hbs",
+  path.join(templatePath, "medusa-config.ts.hbs"),
   "utf8"
 );
 
 const storefrontNextConfigTemplate = fs.readFileSync(
-  "./src/templates/storefront.next.config.js.hbs",
+  path.join(templatePath, "storefront.next.config.js.hbs"),
   "utf8"
 );
 
-const envTemplate = fs.readFileSync("./src/templates/env.hbs", "utf8");
+const envTemplate = fs.readFileSync(
+  path.join(templatePath, "env.hbs"),
+  "utf8"
+);
 
 const entrypointTemplate = fs.readFileSync(
-  "./src/templates/entrypoint.sh.hbs",
+  path.join(templatePath, "entrypoint.sh.hbs"),
   "utf8"
 );
 
 const replaceEnvVarsTemplate = fs.readFileSync(
-  "./src/templates/replace-env-vars.sh.hbs",
+  path.join(templatePath, "replace-env-vars.sh.hbs"),
   "utf8"
 );
 
 const createPublishableKeyTemplate = fs.readFileSync(
-  "./src/templates/create-publishable-key.sh.hbs",
+  path.join(templatePath, "create-publishable-key.sh.hbs"),
   "utf8"
 );
 
-const readmeTemplate = fs.readFileSync("./src/templates/README.md.hbs", "utf8");
+const readmeTemplate = fs.readFileSync(
+  path.join(templatePath, "README.md.hbs"),
+  "utf8"
+);
 
 // Compile the Handlebars template
 const compiledDockerfileBackendTemplate = Handlebars.compile(
