@@ -73,6 +73,8 @@ services:
         - PASSWORD={{adminPassword}}
     env_file: ".env"
     container_name: storefront
+    networks:
+      - medusa-network
     depends_on:
       medusa_server:
         condition: service_started
