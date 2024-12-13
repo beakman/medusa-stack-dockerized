@@ -2,6 +2,10 @@
 
 npx medusa db:migrate
 
+{{#if adminEmail}}
+npx medusa user -e {{adminEmail}} -p {{adminPassword}}
+{{/if}}
+
 {{#if seedDemoData}}
 npx medusa exec ./src/scripts/seed.ts
 {{/if}}
