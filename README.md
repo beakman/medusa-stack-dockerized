@@ -1,4 +1,4 @@
-# medusa-stack-dockerized v2.0
+# medusa-stack-dockerized v2.0
 
 This is a tool to help you create a Medusa stack with Docker and Docker Compose.
 
