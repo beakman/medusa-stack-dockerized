@@ -2,6 +2,8 @@
 
 This is a tool to help you create a Medusa stack with Docker and Docker Compose.
 
+[![asciicast](https://asciinema.org/a/xGM4QLDZwT0wnC8NVAWICJJwa.svg)](https://asciinema.org/a/xGM4QLDZwT0wnC8NVAWICJJwa)
+
 ## Getting Started
 
 Just run:
