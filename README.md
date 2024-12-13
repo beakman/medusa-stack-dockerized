@@ -7,7 +7,7 @@ This is a tool to help you create a Medusa stack with Docker and Docker Compose.
 Just run:
 
 ```bash
-npx medusa-stack-dockerized
+npx create-dockerized-medusa-app
 ```
 
 This will create a new directory with your project's name and the required files to run your Medusa stack.
