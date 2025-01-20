@@ -59,3 +59,9 @@ You can edit the `medusa-config.ts` file to change the configuration of your Med
 
 The script will handle the creation of some required variables, like the Publishable API Key, and 
 the default region. Please be aware this can change in the future.
+
+## Troubleshooting
+
+### Problems connecting to the database 
+
+This can happen if some residual configurations are left behind between executions. You can easily fix this by removing the corresponding volumes with the `docker compose down --volumes` command.
