@@ -42,7 +42,7 @@ export async function askDbSetup() {
       type: "input",
       name: "dbPort",
       message: "Database port:",
-      default: medusaConfig.dbHost,
+      default: medusaConfig.dbPort,
       when: (answers) => answers.createPgContainer,
     },
   ];
