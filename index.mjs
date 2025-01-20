@@ -91,7 +91,7 @@ function finished() {
   console.log(`  
 👉 0. Go to your project directory: ${chalk.blueBright(`cd ${outputDir}`)}
 👉 1. Start the backend with: ${chalk.blueBright(
-    "docker compose up postgres redis medusa_server medusa_worker"
+    "docker compose up postgres redis medusa_server medusa_worker -d"
   )}
 👉 2. Create your admin user with ${chalk.blueBright(
     "docker compose exec -it medusa_server " + medusaConfig.postStartCommand
