@@ -30,6 +30,8 @@ export async function askMinioSetup() {
         name: "minioRootPassword",
         message: "MinIO root password:",
         when: (answers) => answers.useMinio,
+        validate: (input) =>
+          input.length >= 8 || "Password must be at least 8 characters long.",
       },
     ];
     const answers = await inquirer.prompt(questions);
