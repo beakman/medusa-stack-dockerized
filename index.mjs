@@ -90,7 +90,9 @@ function finished() {
   const outputDir = `output/${slugifiedName}`;
   console.log(`  
 👉 0. Go to your project directory: ${chalk.blueBright(`cd ${outputDir}`)}
-👉 1. Start the stack with: ${chalk.blueBright("docker compose up -d")}
+👉 1. Start the backend with: ${chalk.blueBright(
+    "docker compose up postgres redis medusa_server medusa_worker"
+  )}
 👉 2. Create your admin user with ${chalk.blueBright(
     "docker compose exec -it medusa_server " + medusaConfig.postStartCommand
   )}
@@ -100,9 +102,13 @@ function finished() {
 👉 4. Fill the other enviroment variables for the storefront in the generated: ${chalk.blueBright(
     ".env file"
   )}
-👉 5. Start the storefront: ${chalk.blueBright("docker compose up -d")} 
+👉 5. Start the storefront: ${chalk.blueBright(
+    "docker compose up storefront -d"
+  )} 
 
-Happy hacking! ✨
+🎉 Visit you brand new storefront at ${chalk.blueBright(
+    "http://localhost:8000"
+  )} 
     `);
 }
 
