@@ -126,7 +126,6 @@ export let medusaConfig = {
   s3Region: "us-east-1",
   s3SecretAccessKey: "",
   seedDemoData: true,
-  startCommand: "npx medusa db:migrate && yarn start",
   storeCors: "http://localhost:8000,https://docs.medusajs.com",
   stripeApiKey: "sk_test_51Iel5o0i6i5x5p6x7y8z9",
   useDefaultSettings: false,
