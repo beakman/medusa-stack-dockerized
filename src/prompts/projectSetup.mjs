@@ -15,7 +15,7 @@ export async function askProjectSetup() {
       name: "nodeEnvironment",
       message: "Node environment:",
       choices: ["development", "production"],
-      default: "development",
+      default: "production",
     },
     {
       type: "confirm",
