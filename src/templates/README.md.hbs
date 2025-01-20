@@ -6,7 +6,7 @@ Welcome to {{projectName}}, a super cool ecommerce store powered with MedusaJS.
 
 Go to you project directory and run:
 ```bash
-docker compose up -d
+docker compose up postgres redis medusa_server medusa_worker && docker compose up storefront -d
 ```
 
 ### Run database migrations
@@ -40,7 +40,7 @@ docker compose exec -it medusa_server npx medusa exec ./src/scripts/seed.ts
 
 Stop the stack with:
 ```bash
-docker compose down
+docker compose down --volumes
 ```
 
 ## Check your new store
